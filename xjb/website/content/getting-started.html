@@ -1,5 +1,10 @@
-<html>
-  <head><title>Getting Started</title></head>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Getting Started</title>
+  </head>
   <body>
     <h1>Two minute tutorial</h1>
 
@@ -13,7 +18,7 @@
     <p>We are going to call a method on a stateless session bean, called
     <tt>GreetingService</tt> which will say "hello". The GreetingService is made up of
     a home and remote interface and an implementing class, that look like this:</p>
-    <div class="Source Java"><pre>
+    <div class="Shaded"><pre>
 public interface <b>GreetingServiceHome</b> extends EJBHome {
     <b>GreetingService create()</b> throws RemoteException, CreateException;
 }
@@ -46,7 +51,7 @@ public class <b>GreetingServiceBean</b> implements SessionBean {
     </ol></p>
 
     <p>Wrapped up in a JUnit test case, the code looks like this:</p>
-    <div class="Source Java"><pre>
+    <div class="Shaded"><pre>
 public class <tt>GreetingServiceTest</tt> extends TestCase {
 
     public void <b>testShouldSayHello</b>() throws Exception {
@@ -69,54 +74,42 @@ public class <tt>GreetingServiceTest</tt> extends TestCase {
     with the default naming context (<tt>com.sun.enterprise.<i>something</i></tt> blaming
     <tt>org.omg.CORBA.<i>something</i></tt> for not finding a bunch of config files).</p>
 
+    <h1 id="ejbjar">Getting it working - the easy way</h1>
+
+    <p>Assuming you have an <tt>ejb-jar.xml</tt>, you can get XJB to do all the legwork
+    by simply passing it a <tt>java.io.Reader</tt>:</p>
+    <div class="Shaded"><pre>
+public void setUp() throws Exception {
+    <b>new XjbEjbJarParser().read</b>(new FileReader("/path/to/ejb-jar.xml"));
+}</pre></div>
+    <p>And that's it! The test passes and we are in business.</p>
+    <p>The <tt>ejb-jar.xml</tt> processing is pretty comprehensive, so you get all your
+    <tt>&lt;ejb-link&gt;</tt>, <tt>&lt;env-ref&gt;</tt> and <tt>&lt;resource-ref&gt;</tt>
+    setup for free. What's more, you can read multiple <tt>ejb-jar.xml</tt> files, and
+    circular references will be resolved properly.</p>
+
     <h1 id="programmatic">Getting it working - the programmatic way</h1>
 
-    <p>So what is the simplest way we can get this test to pass? Firstly we need to associate the home and remote interfaces with a bean instance, and give it a name:</p>
-    <div class="Source Java"><pre>
-EJBHome home = <b>new XjbHomeFactory().createHome</b>(
-    "greetingService",                <i>// the EJB name</i>
-    GreetingServiceHome.class,        <i>// the home interface</i>
-    GreetingService.class,            <i>// the remote interface</i>
-    new GreetingServiceBean());       <i>// the bean instance</i>
-    </pre></div>
-
-    <p>This single method call creates a fully-functional implementation of
-    <tt>GreetingServiceHome</tt>, with all the associated plumbing and metadata. Now
-    we need to register it in our JNDI context:</p>
-
-    <div class="Source Java">
-    <pre><b>new XjbInitialContextFactory().register</b>("ejb/greetingService", home);</pre>
-    </div>
-
-    <p>The <tt>XjbInitialContextFactory</tt> constructor registered XJB as the default
-    JNDI implementation, so there is nothing more to do. Our setup method now looks like
-    this:</p>
-    <div class="Source Java"><pre>
+    <p>If you don't have an <tt>ejb-jar.xml</tt> or you want a more fine-grained setup,
+    you can configure XJB programmatically. So what is the simplest way we can get this
+    test to pass? We need to associate the home and remote interfaces with a bean instance,
+    give it a name and put it in the JNDI tree. To do all this, we use an
+    <tt>EjbConfigurator</tt> like so:</p>
+    <div class="Shaded"><pre>
 public void <b>setUp</b>() throws Exception {
-    EJBHome home = <b>new XjbHomeFactory().createHome</b>(
+    EJBHome home = <b>new XjbEjbConfigurator().registerSessionBean</b>(
             "greetingService",
             GreetingServiceHome.class,
             GreetingService.class,
-            new GreetingServiceBean());
-
-    <b>new XjbInitialContextFactory().register</b>("ejb/greetingService", home);
+            new GreetingServiceBean()
+            EjbConfigurator.STATELESS);
 }</pre></div>
-    <p>And that's it. Two lines of setup code and we can test our EJB outside of the
-    container.</p>
 
-    <h1 id="ejbjar">Getting it working - the lazy way</h1>
-
-    <p>Although that was pretty straightforward, there is an even easier way.
-    Assuming you have an <tt>ejb-jar.xml</tt>, you can set up XJB by simply
-    passing a <tt>java.io.Reader</tt> into a configurator:</p>
-    <div class="Java Source"><pre>
-public void setUp() throws Exception {
-    <b>new XppEjbJarConfigurator().read</b>(new FileReader("/path/to/ejb-jar.xml"));
-}</pre></div>
-    <p>And that's it!</p>
-    <p>This is actually a nicer way to do things because you get all your
-    <tt>&lt;ejb-link&gt;</tt>, <tt>&lt;env-ref&gt;</tt> and
-    <tt>&lt;resource-ref&gt;</tt> setup for free.</p>
+    <p>This single method call creates a fully-functional implementation of
+    <tt>GreetingServiceHome</tt>, with all the associated plumbing and metadata. It
+    also installs XJB as the default JNDI implementation, and registers the EJB
+    under several common names, including <tt>"ejb/greetingService"</tt>, so there
+    is nothing more to do, and we can test our EJB outside of the container.</p>
 
     <h1>Summary</h1>
 
@@ -130,11 +123,9 @@ public void setUp() throws Exception {
 
     <h1>Where next?</h1>
 
-    <p>If you want to do end-to-end integration testing with XJB (guess what? it's easy)
-    you should take a look at configuring <a href="datasources.html">JDBC DataSources</a>,
-    and maybe read about how you can use <a href="nullobjects.html">Null Objects</a>
-    to make testing easier.</p>
-
-    <p></p>
+    <p>If you want to stub out JDBC or do end-to-end integration testing with XJB
+    (guess what? it's easy) you should take a look at
+    <a href="datasources.html">configuring JDBC DataSources</a>, and maybe read about
+    how you can <a href="nullobjects.html">use Null Objects</a> to make testing easier.</p>
   </body>
 </html>

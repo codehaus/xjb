@@ -7,7 +7,6 @@
  */
 package com.example.legacy.test;
 
-import javax.ejb.EJBHome;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.rmi.PortableRemoteObject;
@@ -17,8 +16,7 @@ import junit.framework.TestCase;
 import com.example.legacy.ejb.GreetingService;
 import com.example.legacy.ejb.GreetingServiceBean;
 import com.example.legacy.ejb.GreetingServiceHome;
-import com.thoughtworks.xjb.ejb.XjbHomeFactory;
-import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
+import com.thoughtworks.xjb.config.ejbjar.XjbEjbConfigurator;
 
 /**
  * This is the example from the two minute tutorial.
@@ -27,12 +25,11 @@ import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
  */
 public class GreetingServiceTest extends TestCase {
     public void setUp() throws Exception {
-        EJBHome home = new XjbHomeFactory().createHome(
+        new XjbEjbConfigurator().registerSessionBean(
                 "greetingService",
                 GreetingServiceHome.class,
                 GreetingService.class,
-                new GreetingServiceBean());
-        new XjbInitialContextFactory().register("ejb/greetingService", home);
+                GreetingServiceBean.class, true);
     }
     
     public void testShouldSayHello() throws Exception {

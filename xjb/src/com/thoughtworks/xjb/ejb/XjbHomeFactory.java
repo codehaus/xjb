@@ -87,10 +87,10 @@ public class XjbHomeFactory implements HomeFactory {
     }
     
     public EJBHome createHome(String ejbName, Class homeInterface, Class remoteInterface, Object impl) {
-        return createHome(ejbName, homeInterface, remoteInterface, impl, true);
+        return createSessionBeanHome(ejbName, homeInterface, remoteInterface, impl, true);
     }
     
-    public EJBHome createHome(String ejbName, Class homeInterface, Class remoteInterface, Object impl, boolean stateless) {
+    public EJBHome createSessionBeanHome(String ejbName, Class homeInterface, Class remoteInterface, Object impl, boolean stateless) {
         return createHome(ejbName, homeInterface, remoteInterface, impl, stateless, PolicyLookup.NULL, TransactionPolicyHandler.NULL);
     }
 

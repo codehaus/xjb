@@ -10,18 +10,16 @@ package com.thoughtworks.xjb.jndi;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.ejb.EJBHome;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.NamingManager;
 
-import org.apache.log4j.Logger;
+import com.thoughtworks.xjb.util.Logger;
 
 
 public class XjbInitialContextFactory implements JndiRegistry, InitialContextFactory {
@@ -127,47 +125,16 @@ public class XjbInitialContextFactory implements JndiRegistry, InitialContextFac
      * Register an object against a particular JNDI name in global context
      */
     public void register(String jndiName, Object object) {
-        if (object instanceof EJBHome) {
-            try {
-                EJBHome home = (EJBHome)object;
-				String remoteInterfaceName = home.getEJBMetaData().getRemoteInterfaceClass().getName();
-                registerCommonGlobalNames(jndiName, remoteInterfaceName, home);
-			} catch (RemoteException e) {
-                throw new Error("Unexpected error in metadata for " + jndiName + ": " + e.getMessage());
-			}
-        }
-        else {
-            globalContext.put(fullyQualified(jndiName), object);
-        }
+        globalContext.put(fullyQualified(jndiName), object);
     }
-
+    
     /**
      * Register an object against a particular JNDI name in local context
      */
     public void register(String contextName, String jndiName, Object object) {
         getLocalContext(contextName).put(fullyQualified(jndiName), object);
     }
-
-    private void registerCommonGlobalNames(String ejbName, String remoteClassName, EJBHome ejbHome) {
-        // Generic
-        String genericName = "ejb/" + ejbName;
     
-        // Orion
-        String orionName = ejbName;
-        
-        // WebSphere
-        StringBuffer buf = new StringBuffer();
-        char[] remoteChars = remoteClassName.toCharArray();
-        for (int i = 0; i < remoteChars.length; i++) {
-            buf.append(remoteChars[i] == '.' ? '/' : remoteChars[i]);
-        }
-        String websphereName = buf.toString();
-        
-        globalContext.put(fullyQualified(genericName), ejbHome);
-        globalContext.put(fullyQualified(orionName), ejbHome);
-        globalContext.put(fullyQualified(websphereName), ejbHome);
-    }
-
     private static HashMap getLocalContext(String contextName) {
         HashMap localContext = (HashMap) localContexts.get(contextName);
         if (localContext == null) {

@@ -19,7 +19,7 @@ public interface HomeFactory {
 	EJBHome createHome(String ejbName, Class homeInterface,
 			Class remoteInterface, Object impl);
     
-	EJBHome createHome(String ejbName, Class homeInterface,
+	EJBHome createSessionBeanHome(String ejbName, Class homeInterface,
 			Class remoteInterface, Object impl, boolean stateless);
     
 	EJBHome createHome(String ejbName, Class homeInterface,

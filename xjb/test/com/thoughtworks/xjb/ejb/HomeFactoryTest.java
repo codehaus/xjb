@@ -238,7 +238,7 @@ public class HomeFactoryTest extends TestCase {
     }
     
     public void testShouldSupportEJBMetaDataForStatefulSessionBean() throws Exception {
-        EJBHome home = new XjbHomeFactory().createHome("Simple", SimpleHome.class, Simple.class, new SimpleBean(), false);
+        EJBHome home = new XjbHomeFactory().createSessionBeanHome("Simple", SimpleHome.class, Simple.class, new SimpleBean(), false);
         EJBMetaData meta = home.getEJBMetaData();
         assertTrue("is session", meta.isSession());
         assertTrue("is not stateless session", !meta.isStatelessSession());

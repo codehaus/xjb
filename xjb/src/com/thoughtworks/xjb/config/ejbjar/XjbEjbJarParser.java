@@ -5,8 +5,9 @@
  * 
  * See license.txt for licence details
  */
-package com.thoughtworks.xjb.config.ejbjar.exml;
+package com.thoughtworks.xjb.config.ejbjar;
 
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.rmi.RemoteException;
 
@@ -14,11 +15,12 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.log4j.Logger;
-
-import com.thoughtworks.xjb.config.ejbjar.EjbJarConfiguratorSupport;
+import com.thoughtworks.xjb.config.ejbjar.EjbConfigurator;
+import com.thoughtworks.xjb.config.ejbjar.EjbJarParser;
+import com.thoughtworks.xjb.config.ejbjar.XjbEjbConfigurator;
 import com.thoughtworks.xjb.jndi.JndiRegistry;
 import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
+import com.thoughtworks.xjb.util.Logger;
 
 import electric.xml.Document;
 import electric.xml.Element;
@@ -29,15 +31,24 @@ import electric.xml.Elements;
  * 
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class ExmlEjbJarConfigurator extends EjbJarConfiguratorSupport {
-    private static final Logger log = Logger.getLogger(ExmlEjbJarConfigurator.class);
+public class XjbEjbJarParser implements EjbJarParser {
+    private static final Logger log = Logger.getLogger(XjbEjbJarParser.class);
+    private final EjbConfigurator configurator;
 
-    public ExmlEjbJarConfigurator(JndiRegistry jndiRegistry, Context context) throws NamingException {
-        super(jndiRegistry, context);
+    public XjbEjbJarParser(JndiRegistry jndiRegistry, Context context) throws NamingException {
+        // TODO inject this
+        configurator = new XjbEjbConfigurator(jndiRegistry, context);
     }
-
-    public ExmlEjbJarConfigurator() throws NamingException {
+    
+    public XjbEjbJarParser() throws NamingException {
         this(new XjbInitialContextFactory(), new InitialContext());
+    }
+    
+    /**
+     * The URL is resolved into a {@link Reader} using the current classloader.
+     */
+    public void read(String url) throws RemoteException {
+        read(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(url)));
     }
     
     public void read(Reader in) throws RemoteException {
@@ -65,7 +76,7 @@ public class ExmlEjbJarConfigurator extends EjbJarConfiguratorSupport {
         String sessionType = session.getTextString("session-type");
         boolean isStateless = "Stateless".equals(sessionType);
         
-        registerSessionBean(ejbName, homeClass, remoteClass, ejbClass, isStateless);
+        configurator.registerSessionBean(ejbName, homeClass, remoteClass, ejbClass, isStateless);
     }
     
     private Class getClass(Element session, String tag) throws ClassNotFoundException {
@@ -81,7 +92,7 @@ public class ExmlEjbJarConfigurator extends EjbJarConfiguratorSupport {
             log.debug("Processing " + entryName);
             Class entryType = getClass(entry, "env-entry-type");
             String stringValue = entry.getTextString("env-entry-value");
-            registerEnvEntry(ejbName, entryName, entryType, stringValue);
+            configurator.registerEnvEntry(ejbName, entryName, entryType, stringValue);
         }
     }
 
@@ -92,7 +103,7 @@ public class ExmlEjbJarConfigurator extends EjbJarConfiguratorSupport {
             Element ref = refs.next();
             String refName = ref.getTextString("res-ref-name");
             Class resType = getClass(ref, "res-type");
-            registerResourceRef(ejbName, refName, resType);
+            configurator.registerResourceRef(ejbName, refName, resType);
         }
     }
     
@@ -103,7 +114,7 @@ public class ExmlEjbJarConfigurator extends EjbJarConfiguratorSupport {
             Element ejbRef = ejbRefs.next();
             String jndiName = ejbRef.getTextString("ejb-ref-name");
             String targetEjbName = ejbRef.getTextString("ejb-link");
-            registerEjbRef(ejbName, jndiName, targetEjbName);
+            configurator.registerEjbRef(ejbName, jndiName, targetEjbName);
         }
     }
 }
