@@ -62,7 +62,7 @@ public class XjbInitialContextFactoryTest extends TestCase {
         assertSame(foo, initialContext.lookup("Foo"));
     }
     
-    private void assertThrowsNamingException(Context context, String name) throws NamingException {
+    private void assertThrowsNamingException(Context context, String name) {
         try {
             context.lookup(name);
             fail(name + " should not have been found");
@@ -149,7 +149,7 @@ public class XjbInitialContextFactoryTest extends TestCase {
         // execute
         XjbInitialContextFactory.setLocalContext("local");
         Context ctx = new InitialContext();
-        XjbInitialContextFactory.clear();
+//        XjbInitialContextFactory.clear();
         
         // verify
         assertNotNull(ctx.lookup("Object"));
