@@ -1,0 +1,8 @@
+Get a subcontext java:comp/env, look up foo (should work), look up java:comp/env/foo (should work)
+
+Next:
+- Hook TransactionAccessor into DataSource (transaction.addConnection(conn) for each new connection)
+- Parse ejb-jar.xml transaction attributes
+- Non-closing connection should set autocommit off
+
+When I call DataSource#getConnection(), the Connection should be added to the current Transaction (if there is one)

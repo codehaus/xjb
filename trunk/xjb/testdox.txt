@@ -1,0 +1,87 @@
+XjbTransactionHandler
+    - Should start with no transaction
+    - Should find existing transaction
+    - Should create transaction if none exists when required method starts
+    - Should commit transaction when required method ends
+    - Should reuse existing transaction if one exists when required method starts
+    - Should not commit transaction when required method ends if this handler did not create it
+    - Should rollback transaction when required method fails
+    - Should not rollback transaction when required method fails if this handler did not create it
+    - Should create transaction when requires new method starts
+    - Should commit transaction when requires new method ends
+    - Should rollback transaction when requires new method fails
+    - Should suspend existing transaction when requires new method starts and restore after it ends
+    - Should suspend existing transaction when requires new method starts and restore after it fails
+    - Should not create transaction if none exists when supports method starts
+    - Should not create transaction if one already exists when supports method starts
+    - Should not create transaction if none exists when not supported method starts
+    - Should suspend transaction if one exists when not supported method starts
+    - Should not create transaction if one exists when mandatory method starts
+    - Should not commit when mandatory method ends
+    - Should not rollback when mandatory method fails
+    - Should throw e j b exception if no transaction exists when mandatory method starts
+    - Should not create transaction if none exists when never method starts
+    - Should not commit transaction when never method ends
+    - Should not rollback transaction when never method fails
+    - Should throw e j b exception if transaction exists when never method starts
+    - Should restore suspended transaction if commit throws exception when method ends
+    - Should restore suspended transaction if rollback throws exception when method fails
+EjbJarConfiguratorTestCase
+    - Should configure stateless session bean
+    - Should map bean to common jndi names
+    - Should configure stateful session bean
+    - Should throw remote exception if home interface cannot be resolved
+    - Should throw remote exception if remote interface cannot be resolved
+    - Should throw remote exception if ejb class cannot be resolved
+    - Should configure env entries
+    - Should configure multiple session beans
+    - Should resolve resource references into local context
+    - Should throw remote exception if unable to resolve resource reference
+    - Should resolve ejb link references into local context
+    - Should resolve circular ejb links from different ejb jar xml files
+ExmlEjbJarConfigurator
+XppEjbJarConfigurator
+ResourceConfigurator
+    - Should configure data sources
+HomeProxy
+    - Should create remote proxy to bean impl
+    - Should call ejb create when create called on home interface
+    - Should propagate exception from ejb create
+    - Should throw remote exception if ejb create method is not accessible
+    - Should call ejb create method with matching signature
+    - Should call set session context before ejb create
+    - Should call appropriate ejb create method for create xxx methods
+    - Should support e j b meta data
+    - Should support e j b meta data for stateful session bean
+    - Should construct remote with correct local context
+RemoteProxy
+    - Should call ejb remove when remove is invoked
+    - Should get e j b home
+    - Should be identical to itself
+    - Should not be identical to another bean
+    - Should set local context before calling delegate method
+    - Should recursively apply local context when bean calls another bean
+XjbSessionContext
+    - Should set rollback only
+JdbcDataSourceFactory
+    - Should create data source that reuses single connection
+    - Should ignore close on single connection data source
+    - Should create driver manager data source
+XjbInitialContextFactoryBuilder
+    - Should build fake initial context factory
+XjbInitialContextFactory
+    - Should install itself on construction
+    - Should register component against jndi name
+    - Should fully qualify relative jndi name on register
+    - Should fully qualify relative jndi name on lookup
+    - Should throw naming exception if lookup fails
+    - Should create subcontext for java comp env
+    - Should provide local context
+    - Should resolve global resource reference
+    - Should clear contexts
+    - Should provide separate copy of registry for each initial context
+XmlSpike
+    - Electric d o m
+    - Electric s a x
+    - J a x p
+    - X p p
