@@ -30,7 +30,7 @@ import com.thoughtworks.xjb.ejb.SessionBeanSupport;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class EjbJarConfiguratorTest extends TestCase {
+public class EjbJarParserTest extends TestCase {
 
     private MapRegistry mapRegistry;
     private Mock contextMock;
