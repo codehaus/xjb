@@ -19,15 +19,16 @@ import org.jmock.Mock;
 import org.jmock.core.mixin.Invoked;
 import org.jmock.core.mixin.Return;
 
+import com.thoughtworks.xjb.ejb.HomeFactory;
 import com.thoughtworks.xjb.ejb.SessionBeanSupport;
 import com.thoughtworks.xjb.ejb.XjbHomeFactory;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class HomeFactoryTransactionHandlingTest extends TestCase {
+public class TransactionalHomeFactoryTest extends TestCase {
 
-    private static final String beforeMethodStarts = "beforeMethodStarts";
+    private static final String onInvoke = "onInvoke";
     private static final String lookupPolicyFor = "lookupPolicyFor";
     
     public interface Simple extends EJBObject {
@@ -54,16 +55,21 @@ public class HomeFactoryTransactionHandlingTest extends TestCase {
         lookupMock.expects(Invoked.once()).method(lookupPolicyFor).withAnyArguments()
             .will(Return.value(Policy.NULL));
         
-        handlerMock.expects(Invoked.once()).method(beforeMethodStarts).withAnyArguments();
+        handlerMock.expects(Invoked.once()).method(onInvoke).withAnyArguments();
         
         // execute
-        SimpleHome home = (SimpleHome) new XjbHomeFactory().createHome(
+        HomeFactory factory = new XjbHomeFactory(
+                new CmtRemoteFactory(
+                TransactionGetter.NULL,
+                (PolicyLookup)lookupMock.proxy(),
+                (TransactionPolicyHandler)handlerMock.proxy()));
+		SimpleHome home = (SimpleHome) factory.createSessionHome(
                 "simple",
                 SimpleHome.class,
                 Simple.class,
                 new SimpleBean(),
-                true,
-                (PolicyLookup)lookupMock.proxy(), (TransactionPolicyHandler)handlerMock.proxy());
+                true);
+        assertNotNull(home);
         home.create().getSomething();
         
         // verify

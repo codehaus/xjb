@@ -53,7 +53,7 @@ public class HomeFactoryTest extends TestCase {
         remoteFactoryMock.expects(Invoked.once()).method("createRemote").withAnyArguments();
         
 		// execute
-        SimpleHome home = (SimpleHome) homeFactory.createHome("simple", SimpleHome.class, Simple.class, null);
+        SimpleHome home = (SimpleHome) homeFactory.createHome("simple", SimpleHome.class, Simple.class, new SimpleBean());
         home.create();
         
 		// verify
@@ -238,7 +238,7 @@ public class HomeFactoryTest extends TestCase {
     }
     
     public void testShouldSupportEJBMetaDataForStatefulSessionBean() throws Exception {
-        EJBHome home = new XjbHomeFactory().createSessionBeanHome("Simple", SimpleHome.class, Simple.class, new SimpleBean(), false);
+        EJBHome home = new XjbHomeFactory().createSessionHome("Simple", SimpleHome.class, Simple.class, new SimpleBean(), false);
         EJBMetaData meta = home.getEJBMetaData();
         assertTrue("is session", meta.isSession());
         assertTrue("is not stateless session", !meta.isStatelessSession());

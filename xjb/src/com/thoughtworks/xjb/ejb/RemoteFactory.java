@@ -8,15 +8,11 @@
 package com.thoughtworks.xjb.ejb;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
-import com.thoughtworks.xjb.cmt.PolicyLookup;
-import com.thoughtworks.xjb.cmt.TransactionPolicyHandler;
+
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
 public interface RemoteFactory {
 	EJBObject createRemote(String ejbName, EJBHome ejbHome,
 			Class remoteInterface, Object impl);
-	EJBObject createRemote(String ejbName, EJBHome ejbHome,
-			Class remoteInterface, Object impl, PolicyLookup policyLookup,
-			TransactionPolicyHandler handler);
 }

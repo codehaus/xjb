@@ -12,12 +12,12 @@ import javax.ejb.EJBException;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class XjbTransactionHandler implements TransactionPolicyHandler, TransactionAccessor {
+public class XjbTransactionHandler implements TransactionPolicyHandler, TransactionGetter {
     static Transaction transaction = Transaction.NULL;
 
 	private final TransactionFactory factory;
     private boolean createdTransaction = false;
-
+    
 	private Transaction storedTransaction = Transaction.NULL;
 
 	public XjbTransactionHandler(TransactionFactory factory) {
@@ -33,7 +33,7 @@ public class XjbTransactionHandler implements TransactionPolicyHandler, Transact
      * 
      * @throws EJBException if preconditions are not satisfied for a particular policy
      */
-	public Transaction beforeMethodStarts(Policy policy) {
+	public Transaction onInvoke(Policy policy) {
         checkPreconditions(policy);
         storedTransaction = transaction;
 
@@ -47,11 +47,11 @@ public class XjbTransactionHandler implements TransactionPolicyHandler, Transact
         return getTransaction();
     }
 
-    public void afterMethodEnds() {
+    public void onSuccess() {
         finishTransaction(true);
     }
 
-    public void afterMethodFails() {
+    public void onFailure() {
         finishTransaction(false);
     }
 	

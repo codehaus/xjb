@@ -19,9 +19,8 @@ import org.jmock.core.mixin.Invoked;
 import org.jmock.core.mixin.Is;
 import org.jmock.core.mixin.Return;
 
-import com.thoughtworks.nothing.Null;
+import com.thoughtworks.proxy.toys.nullobject.Null;
 import com.thoughtworks.xjb.config.MapRegistry;
-import com.thoughtworks.xjb.config.resources.exml.ExmlResourceConfigurator;
 import com.thoughtworks.xjb.jdbc.DataSourceFactory;
 
 /**
@@ -86,7 +85,7 @@ public class ResourceConfiguratorTest extends TestCase {
         
         MapRegistry registry = new MapRegistry();
         
-        ResourceConfigurator configurator = new ExmlResourceConfigurator(registry, dataSourceFactory);
+        ResourceConfigurator configurator = new XjbResourceConfigurator(registry, dataSourceFactory);
         
         // execute
         configurator.read(dataSourceXml());

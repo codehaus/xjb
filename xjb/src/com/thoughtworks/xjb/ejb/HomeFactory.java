@@ -7,8 +7,6 @@
  */
 package com.thoughtworks.xjb.ejb;
 import javax.ejb.EJBHome;
-import com.thoughtworks.xjb.cmt.PolicyLookup;
-import com.thoughtworks.xjb.cmt.TransactionPolicyHandler;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
@@ -19,10 +17,6 @@ public interface HomeFactory {
 	EJBHome createHome(String ejbName, Class homeInterface,
 			Class remoteInterface, Object impl);
     
-	EJBHome createSessionBeanHome(String ejbName, Class homeInterface,
+	EJBHome createSessionHome(String ejbName, Class homeInterface,
 			Class remoteInterface, Object impl, boolean stateless);
-    
-	EJBHome createHome(String ejbName, Class homeInterface,
-			Class remoteInterface, Object impl, boolean stateless,
-			PolicyLookup lookup, TransactionPolicyHandler handler);
 }

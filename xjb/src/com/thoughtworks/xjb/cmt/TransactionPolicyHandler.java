@@ -7,7 +7,7 @@
  */
 package com.thoughtworks.xjb.cmt;
 
-import com.thoughtworks.nothing.Null;
+import com.thoughtworks.proxy.toys.nullobject.Null;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
@@ -15,9 +15,9 @@ import com.thoughtworks.nothing.Null;
 public interface TransactionPolicyHandler {
 	TransactionPolicyHandler NULL = (TransactionPolicyHandler) Null.object(TransactionPolicyHandler.class);
 
-	Transaction beforeMethodStarts(Policy policy);
+	Transaction onInvoke(Policy policy);
 
-	void afterMethodEnds();
+	void onSuccess();
 
-	void afterMethodFails();
+	void onFailure();
 }

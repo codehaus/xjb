@@ -10,7 +10,7 @@ package com.thoughtworks.xjb.cmt;
 import java.sql.Connection;
 import java.util.Collection;
 
-import com.thoughtworks.nothing.Null;
+import com.thoughtworks.proxy.toys.nullobject.Null;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>

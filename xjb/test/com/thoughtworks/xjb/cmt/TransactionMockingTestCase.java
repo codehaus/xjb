@@ -65,7 +65,7 @@ public class TransactionMockingTestCase extends TestCase {
 
 	protected void installMockTransactionAsCurrentTransaction() {
 	    factoryMockWillReturnTransactionMock();
-	    new XjbTransactionHandler(factory).beforeMethodStarts(Transaction.REQUIRED);
+	    new XjbTransactionHandler(factory).onInvoke(Transaction.REQUIRED);
 	}
 
 	protected void otherFactoryMockWillReturnOtherTransactionMock() {

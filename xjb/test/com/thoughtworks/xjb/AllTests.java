@@ -11,9 +11,8 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import com.thoughtworks.xjb.cmt.DataSourceTransactionHandlingTest;
-import com.thoughtworks.xjb.cmt.HomeFactoryTransactionHandlingTest;
-import com.thoughtworks.xjb.cmt.RemoteFactoryTransactionHandlingTest;
-import com.thoughtworks.xjb.cmt.SessionContextTransactionHandlingTest;
+import com.thoughtworks.xjb.cmt.TransactionalHomeFactoryTest;
+import com.thoughtworks.xjb.cmt.TransactionalRemoteFactoryTest;
 import com.thoughtworks.xjb.cmt.XjbTransactionHandlerTest;
 import com.thoughtworks.xjb.cmt.XjbTransactionTest;
 import com.thoughtworks.xjb.config.ejbjar.EjbJarParserTest;
@@ -39,10 +38,9 @@ public class AllTests {
         TestSuite suite = new TestSuite("Test for com.thoughtworks.xjb");
         //$JUnit-BEGIN$
         suite.addTestSuite(DataSourceTransactionHandlingTest.class);
-        suite.addTestSuite(HomeFactoryTransactionHandlingTest.class);
-        suite.addTestSuite(RemoteFactoryTransactionHandlingTest.class);
+        suite.addTestSuite(TransactionalHomeFactoryTest.class);
+        suite.addTestSuite(TransactionalRemoteFactoryTest.class);
         suite.addTestSuite(XjbTransactionHandlerTest.class);
-        suite.addTestSuite(SessionContextTransactionHandlingTest.class);
         suite.addTestSuite(XjbTransactionTest.class);
         suite.addTestSuite(EjbJarParserTest.class);
         suite.addTestSuite(ResourceConfiguratorTest.class);

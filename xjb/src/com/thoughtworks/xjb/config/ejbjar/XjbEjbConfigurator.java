@@ -70,7 +70,7 @@ public class XjbEjbConfigurator implements EjbConfigurator {
 	public void registerSessionBean(String ejbName,
             Class homeInterface, Class remoteInterface, Class ejbClass, boolean isStateless)
 			throws InstantiationException, IllegalAccessException {
-		EJBHome ejbHome = homeFactory.createSessionBeanHome(ejbName,
+		EJBHome ejbHome = homeFactory.createSessionHome(ejbName,
 				homeInterface, remoteInterface, ejbClass.newInstance(),
 				isStateless);
 		registerCommonGlobalNames(ejbName, remoteInterface.getName(), ejbHome);

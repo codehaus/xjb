@@ -7,13 +7,13 @@
  */
 package com.thoughtworks.xjb.cmt;
 
-import com.thoughtworks.nothing.Null;
+import com.thoughtworks.proxy.toys.nullobject.Null;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public interface TransactionAccessor {
-    TransactionAccessor NULL = (TransactionAccessor) Null.object(TransactionAccessor.class);
+public interface TransactionGetter {
+    TransactionGetter NULL = (TransactionGetter) Null.object(TransactionGetter.class);
 
 	Transaction getTransaction();
 }

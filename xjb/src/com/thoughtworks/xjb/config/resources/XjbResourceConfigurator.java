@@ -5,14 +5,13 @@
  * 
  * See license.txt for licence details
  */
-package com.thoughtworks.xjb.config.resources.exml;
+package com.thoughtworks.xjb.config.resources;
 
 import java.io.Reader;
 import java.rmi.RemoteException;
 
 import javax.sql.DataSource;
 
-import com.thoughtworks.xjb.config.resources.ResourceConfigurator;
 import com.thoughtworks.xjb.jdbc.DataSourceFactory;
 import com.thoughtworks.xjb.jndi.JndiRegistry;
 
@@ -39,12 +38,12 @@ import electric.xml.XPath;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class ExmlResourceConfigurator implements ResourceConfigurator {
+public class XjbResourceConfigurator implements ResourceConfigurator {
 
     private final DataSourceFactory dataSourceFactory;
 	private final JndiRegistry jndiRegistry;
 
-	public ExmlResourceConfigurator(JndiRegistry jndiRegistry, DataSourceFactory dataSourceFactory) {
+	public XjbResourceConfigurator(JndiRegistry jndiRegistry, DataSourceFactory dataSourceFactory) {
 		this.dataSourceFactory = dataSourceFactory;
 		this.jndiRegistry = jndiRegistry;
 	}

@@ -19,10 +19,10 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     
 	public void testShouldStartWithNoTransaction() throws Exception {
 		// execute
-        TransactionAccessor handler = new XjbTransactionHandler(TransactionFactory.NULL);
+        TransactionGetter transactionGetter = new XjbTransactionHandler(TransactionFactory.NULL);
         
         // verify
-		assertEquals(Transaction.NULL, handler.getTransaction());
+		assertEquals(Transaction.NULL, transactionGetter.getTransaction());
 	}
     
     public void testShouldFindExistingTransaction() throws Exception {
@@ -39,13 +39,13 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     
     // "Required" transaction policy
     
-    public void testShouldCreateTransactionIfNoneExistsWhenRequiredMethodStarts() throws Exception {
+    public void testShouldCreateTransactionIfNoneExistsWhenRequiredMethodIsInvoked() throws Exception {
         // setup
         factoryMockWillReturnTransactionMock();
         XjbTransactionHandler handler = new XjbTransactionHandler(factory);
         
         // execute
-        handler.beforeMethodStarts(Transaction.REQUIRED);
+        handler.onInvoke(Transaction.REQUIRED);
         Transaction result = handler.getTransaction();
         
         // verify
@@ -53,42 +53,42 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
 		assertSame(transactionMock.proxy(), result);
     }
     
-    public void testShouldCommitTransactionWhenRequiredMethodEnds() throws Exception {
+    public void testShouldCommitTransactionWhenRequiredMethodSucceeds() throws Exception {
         // setup
         factoryMockWillReturnTransactionMock();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
-        handler.beforeMethodStarts(Transaction.REQUIRED);
+        handler.onInvoke(Transaction.REQUIRED);
         
         // expect
         transactionMock.expects(Invoked.once()).method(commitUnlessRollbackOnly).withNoArguments();
         
         // execute
-        handler.afterMethodEnds();
+        handler.onSuccess();
         
         // verify
         verify();
-        TransactionAccessor accessor = new XjbTransactionHandler(TransactionFactory.NULL);
-		assertEquals(Transaction.NULL, accessor.getTransaction());
+        TransactionGetter transactionGetter = new XjbTransactionHandler(TransactionFactory.NULL);
+		assertEquals(Transaction.NULL, transactionGetter.getTransaction());
     }
     
-    public void testShouldReuseExistingTransactionIfOneExistsWhenRequiredMethodStarts() throws Exception {
+    public void testShouldReuseExistingTransactionIfOneExistsWhenRequiredMethodIsInvoked() throws Exception {
         // setup
         factoryMockWillReturnTransactionMock();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
-        handler.beforeMethodStarts(Transaction.REQUIRED);
+        handler.onInvoke(Transaction.REQUIRED);
         
         // expect
         otherFactoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
         
         // execute
         TransactionPolicyHandler anotherHandler = new XjbTransactionHandler(otherFactory);
-        anotherHandler.beforeMethodStarts(Transaction.REQUIRED);
+        anotherHandler.onInvoke(Transaction.REQUIRED);
         
         // verify
         verify();
 	}
     
-    public void testShouldNotCommitTransactionWhenRequiredMethodEndsIfThisHandlerDidNotCreateIt() throws Exception {
+    public void testShouldNotCommitTransactionWhenRequiredMethodSucceedsIfThisHandlerDidNotCreateIt() throws Exception {
         // setup
         installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler otherHandler = new XjbTransactionHandler(otherFactory);
@@ -98,8 +98,8 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         otherFactoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
         
         // execute
-        otherHandler.beforeMethodStarts(Transaction.REQUIRED);
-        otherHandler.afterMethodEnds();
+        otherHandler.onInvoke(Transaction.REQUIRED);
+        otherHandler.onSuccess();
         
         // verify
         verify();
@@ -110,13 +110,13 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
 		// setup
         factoryMockWillReturnTransactionMock();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
-        handler.beforeMethodStarts(Transaction.REQUIRED);
+        handler.onInvoke(Transaction.REQUIRED);
         
         // expect
         transactionMock.expects(Invoked.once()).method(rollback).withNoArguments();
         
         // execute
-        handler.afterMethodFails();
+        handler.onFailure();
         
         // verify
         verify();
@@ -127,13 +127,13 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         // setup
         installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
-        handler.beforeMethodStarts(Transaction.REQUIRED);
+        handler.onInvoke(Transaction.REQUIRED);
         
         // expect
         transactionMock.expects(Invoked.never()).method(rollback).withNoArguments();
         
         // execute
-        handler.afterMethodFails();
+        handler.onFailure();
         
         // verify
         verify();
@@ -142,27 +142,27 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     
     // "RequiresNew" transaction policy
     
-	public void testShouldCreateTransactionWhenRequiresNewMethodStarts() throws Exception {
+	public void testShouldCreateTransactionWhenRequiresNewMethodIsInvoked() throws Exception {
         // setup
 		factoryMockWillReturnTransactionMock();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
         
         // execute
-        handler.beforeMethodStarts(Transaction.REQUIRES_NEW);
+        handler.onInvoke(Transaction.REQUIRES_NEW);
         
         // verify
         verify();
 	}
     
-    public void testShouldCommitTransactionWhenRequiresNewMethodEnds() throws Exception {
+    public void testShouldCommitTransactionWhenRequiresNewMethodSucceeds() throws Exception {
 		// setup
         factoryMockWillReturnTransactionMock();
         transactionMock.expects(Invoked.once()).method(commitUnlessRollbackOnly).withNoArguments();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
-        handler.beforeMethodStarts(Transaction.REQUIRES_NEW);
+        handler.onInvoke(Transaction.REQUIRES_NEW);
         
         // execute
-        handler.afterMethodEnds();
+        handler.onSuccess();
         
         // verify
         verify();
@@ -174,38 +174,38 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         factoryMockWillReturnTransactionMock();
         transactionMock.expects(Invoked.once()).method(rollback).withNoArguments();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
-        handler.beforeMethodStarts(Transaction.REQUIRES_NEW);
+        handler.onInvoke(Transaction.REQUIRES_NEW);
         
         // execute
-        handler.afterMethodFails();
+        handler.onFailure();
         
         // verify
         verify();
         assertEquals(Transaction.NULL, currentTransaction());
 	}
     
-    public void testShouldSuspendExistingTransactionWhenRequiresNewMethodStartsAndRestoreAfterItEnds() throws Exception {
+    public void testShouldSuspendExistingTransactionWhenRequiresNewMethodIsInvokedAndRestoreAfterItEnds() throws Exception {
 		// setup
         installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
         
         // execute
-        handler.beforeMethodStarts(Transaction.REQUIRES_NEW);
-        handler.afterMethodEnds();
+        handler.onInvoke(Transaction.REQUIRES_NEW);
+        handler.onSuccess();
         
         // verify
         verify();
         assertSame(transactionMock.proxy(), currentTransaction());
 	}
     
-    public void testShouldSuspendExistingTransactionWhenRequiresNewMethodStartsAndRestoreAfterItFails() throws Exception {
+    public void testShouldSuspendExistingTransactionWhenRequiresNewMethodIsInvokedAndRestoreAfterItFails() throws Exception {
 		// setup
         installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
 
         // execute
-        handler.beforeMethodStarts(Transaction.REQUIRES_NEW);
-        handler.afterMethodFails();
+        handler.onInvoke(Transaction.REQUIRES_NEW);
+        handler.onFailure();
         
         // verify
         verify();
@@ -214,7 +214,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     
     // "Supports" transaction policy
     
-    public void testShouldNotCreateTransactionIfNoneExistsWhenSupportsMethodStarts() throws Exception {
+    public void testShouldNotCreateTransactionIfNoneExistsWhenSupportsMethodIsInvoked() throws Exception {
 		// setup
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
         
@@ -222,14 +222,14 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         factoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
         
         // execute
-        handler.beforeMethodStarts(Transaction.SUPPORTS);
+        handler.onInvoke(Transaction.SUPPORTS);
         
         // verify
         verify();
         assertEquals(Transaction.NULL, currentTransaction());
 	}
     
-    public void testShouldNotCreateTransactionIfOneAlreadyExistsWhenSupportsMethodStarts() throws Exception {
+    public void testShouldNotCreateTransactionIfOneAlreadyExistsWhenSupportsMethodIsInvoked() throws Exception {
         // setup
 		installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler otherHandler = new XjbTransactionHandler(otherFactory);
@@ -238,7 +238,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         otherFactoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
         
         // execute
-        otherHandler.beforeMethodStarts(Transaction.SUPPORTS);
+        otherHandler.onInvoke(Transaction.SUPPORTS);
         
         // verify
         verify();
@@ -247,7 +247,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     
     // "Not Supported" transaction policy
     
-    public void testShouldNotCreateTransactionIfNoneExistsWhenNotSupportedMethodStarts() throws Exception {
+    public void testShouldNotCreateTransactionIfNoneExistsWhenNotSupportedMethodIsInvoked() throws Exception {
 		// setup
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
         
@@ -255,33 +255,33 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         factoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
         
         // execute
-        handler.beforeMethodStarts(Transaction.NOT_SUPPORTED);
+        handler.onInvoke(Transaction.NOT_SUPPORTED);
         
         // verify
         verify();
         assertEquals(Transaction.NULL, currentTransaction());
 	}
     
-    public void testShouldSuspendTransactionIfOneExistsWhenNotSupportedMethodStarts() throws Exception {
+    public void testShouldSuspendTransactionIfOneExistsWhenNotSupportedMethodIsInvoked() throws Exception {
         // setup
 		installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
         
         // execute
-        handler.beforeMethodStarts(Transaction.NOT_SUPPORTED);
+        handler.onInvoke(Transaction.NOT_SUPPORTED);
         
         // verify
         assertEquals(Transaction.NULL, currentTransaction());
 	}
     
-    public void testShouldRestoreTransactionIfOneExistedWhenNotSupportedMethodEnds() throws Exception {
+    public void testShouldRestoreTransactionIfOneExistedWhenNotSupportedMethodSucceeds() throws Exception {
 		// setup
         installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
-        handler.beforeMethodStarts(Transaction.NOT_SUPPORTED);
+        handler.onInvoke(Transaction.NOT_SUPPORTED);
         
         // execute
-        handler.afterMethodEnds();
+        handler.onSuccess();
         
         // verify
         verify();
@@ -292,10 +292,10 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
 		// setup
         installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
-        handler.beforeMethodStarts(Transaction.NOT_SUPPORTED);
+        handler.onInvoke(Transaction.NOT_SUPPORTED);
         
         // execute
-        handler.afterMethodFails();
+        handler.onFailure();
         
         // verify
         verify();
@@ -304,19 +304,19 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     
     // "Mandatory" transaction policy
     
-    public void testShouldThrowEJBExceptionIfNoTransactionExistsWhenMandatoryMethodStarts() throws Exception {
+    public void testShouldThrowEJBExceptionIfNoTransactionExistsWhenMandatoryMethodIsInvoked() throws Exception {
         // setup
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
         
         // execute
         try {
-            handler.beforeMethodStarts(Transaction.MANDATORY);
+            handler.onInvoke(Transaction.MANDATORY);
             fail("Should have thrown EJBException");
         } catch (EJBException e) {
         }
     }
     
-    public void testShouldNotCreateTransactionIfOneExistsWhenMandatoryMethodStarts() throws Exception {
+    public void testShouldNotCreateTransactionIfOneExistsWhenMandatoryMethodIsInvoked() throws Exception {
         // setup
 		installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler otherHandler = new XjbTransactionHandler(otherFactory);
@@ -325,13 +325,13 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         otherFactoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
         
         // execute
-        otherHandler.beforeMethodStarts(Transaction.MANDATORY);
+        otherHandler.onInvoke(Transaction.MANDATORY);
             
         // verify
         verify();
 	}
     
-    public void testShouldNotCommitWhenMandatoryMethodEnds() throws Exception {
+    public void testShouldNotCommitWhenMandatoryMethodSucceeds() throws Exception {
 		// setup
         installMockTransactionAsCurrentTransaction();
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
@@ -340,8 +340,8 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         transactionMock.expects(Invoked.never()).method(commitUnlessRollbackOnly).withNoArguments();
         
         // execute
-        handler.beforeMethodStarts(Transaction.MANDATORY);
-        handler.afterMethodEnds();
+        handler.onInvoke(Transaction.MANDATORY);
+        handler.onSuccess();
         
         // verify
         verify();
@@ -356,8 +356,8 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         transactionMock.expects(Invoked.never()).method(rollback).withNoArguments();
         
         // execute
-        handler.beforeMethodStarts(Transaction.MANDATORY);
-        handler.afterMethodFails();
+        handler.onInvoke(Transaction.MANDATORY);
+        handler.onFailure();
         
         // verify
         verify();
@@ -365,13 +365,13 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     
     // "Never" transaction policy
     
-    public void testShouldThrowEJBExceptionIfTransactionExistsWhenNeverMethodStarts() throws Exception {
+    public void testShouldThrowEJBExceptionIfTransactionExistsWhenNeverMethodIsInvoked() throws Exception {
         installMockTransactionAsCurrentTransaction();
         XjbTransactionHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
         
         // execute
         try {
-            handler.beforeMethodStarts(Transaction.NEVER);
+            handler.onInvoke(Transaction.NEVER);
             
             // verify
             fail("Should throw EJBException");
@@ -379,26 +379,26 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         }
     }
     
-    public void testShouldNotCreateTransactionIfNoneExistsWhenNeverMethodStarts() throws Exception {
+    public void testShouldNotCreateTransactionIfNoneExistsWhenNeverMethodIsInvoked() throws Exception {
 		// setup
         factoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
         
         // execute
-        handler.beforeMethodStarts(Transaction.NEVER);
+        handler.onInvoke(Transaction.NEVER);
         
         // verify
         verify();
         assertEquals(Transaction.NULL, currentTransaction());
 	}
     
-    public void testShouldNotCommitTransactionWhenNeverMethodEnds() throws Exception {
+    public void testShouldNotCommitTransactionWhenNeverMethodSucceeds() throws Exception {
 		// setup
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
-        handler.beforeMethodStarts(Transaction.NEVER);
+        handler.onInvoke(Transaction.NEVER);
         
         // execute
-        handler.afterMethodEnds();
+        handler.onSuccess();
         
         // verify
         verify();
@@ -407,10 +407,10 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     public void testShouldNotRollbackTransactionWhenNeverMethodFails() throws Exception {
 		// setup
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
-        handler.beforeMethodStarts(Transaction.NEVER);
+        handler.onInvoke(Transaction.NEVER);
         
         // execute
-        handler.afterMethodFails();
+        handler.onFailure();
         
         // verify
         verify();
@@ -418,7 +418,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     
     // Miscellaneous behaviour
     
-    public void testShouldRestoreSuspendedTransactionIfCommitThrowsExceptionWhenMethodEnds() throws Exception {
+    public void testShouldRestoreSuspendedTransactionIfCommitThrowsExceptionWhenMethodSucceeds() throws Exception {
 		// setup
         installMockTransactionAsCurrentTransaction();
         otherFactoryMockWillReturnOtherTransactionMock();
@@ -429,9 +429,9 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
             .will(Throw.exception(new EJBException("oops")));
         
         // execute
-        otherHandler.beforeMethodStarts(Transaction.REQUIRES_NEW); // first transaction is suspended
+        otherHandler.onInvoke(Transaction.REQUIRES_NEW); // first transaction is suspended
         try {
-            otherHandler.afterMethodEnds();
+            otherHandler.onSuccess();
             fail("Mock transaction should have thrown EJBException");
         } catch (EJBException expected) {
         }
@@ -453,9 +453,9 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         
         
         // execute
-        otherHandler.beforeMethodStarts(Transaction.REQUIRES_NEW); // first transaction is suspended
+        otherHandler.onInvoke(Transaction.REQUIRES_NEW); // first transaction is suspended
         try {
-            otherHandler.afterMethodFails();
+            otherHandler.onFailure();
             fail("Mock transaction should have thrown EJBException");
         } catch (EJBException expected) {
         }

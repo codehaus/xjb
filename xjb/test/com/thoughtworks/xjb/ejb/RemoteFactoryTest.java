@@ -97,14 +97,20 @@ public class RemoteFactoryTest extends TestCase {
                 "simple",
                 SimpleHome.class,
                 Simple.class,
-                null);
+                new SimpleBean());
          Simple simple = home.create();
          assertSame(home, simple.getEJBHome());
     }
     
     public void testShouldBeIdenticalToItself() throws Exception {
+        // setup
     	Simple simple = createRemote("Simple", Simple.class, new SimpleBean());
-        assertTrue(simple.isIdentical(simple));
+        
+        // execute
+        boolean result = simple.isIdentical(simple);
+        
+        // verify
+		assertTrue(result);
     }
     
     public void testShouldNotBeIdenticalToAnotherBean() throws Exception {

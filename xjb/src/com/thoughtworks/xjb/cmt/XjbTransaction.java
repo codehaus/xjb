@@ -61,4 +61,8 @@ public class XjbTransaction implements Transaction {
 	public void setRollbackOnly() {
         rollbackOnly = true;
 	}
+    
+    public String toString() {
+        return "XjbTransaction: " + connections;
+    }
 }
