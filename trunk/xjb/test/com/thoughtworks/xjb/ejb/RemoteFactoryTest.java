@@ -69,7 +69,7 @@ public class RemoteFactoryTest extends TestCase {
     }
     
     public Simple createRemote(String ejbName, Class remoteInterface, Object impl) {
-        return (Simple)new XjbRemoteFactory().createRemote(ejbName, remoteInterface, null, impl);
+        return (Simple)new XjbRemoteFactory().createRemote(ejbName, null, remoteInterface, impl);
     }
 
     public void testShouldCallEjbRemoveWhenRemoveIsInvoked() throws Exception {

@@ -1,44 +1,61 @@
-<?xml version="1.0"?>
 <html>
-  <head>
-    <title>A Lightweight Mock Object Library for Java</title>
-  </head>
-  
-  <body>
-    <h1>About jMock</h1>
-    
-    <p>jMock is a library for testing Java code using 
-    <a href="http://www.mockobjects.com">mock objects</a>.</p>
-    
-    <p>Mock objects help you design and test the interactions between 
-    the objects in your programs.</p>
-    
-    <p>The jMock package:</p> 
-    <ul>
-      <li>makes it quick and easy to define mock objects, so you don't
-      break the rhythm of programming.</li>
-      <li>lets you define flexible constraints over object interactions, 
-      reducing the brittleness of your tests.</li>
-      <li>is easy to extend.</li>
-    </ul>
-    
-    <h2>Warning</h2>
-    <p>jMock is currently in heavy development while
-    <a href="team.html">the team</a> work towards a stable 
-    1.0 release.  We don't currently recommend its use in
-    production projects but would be grateful if developers
-    try out the latest
-    <a href="download.html#snapshot">development snapshot</a>
-    or <a href="repository.html">CVS version</a>
-    and send us feedback.  Announcements of alpha, beta and
-    final releases of version 1.0 will be sent to the
-    <a href="mailing-lists.html">mailing lists</a>.</p>
-    
-    <h1>Getting Started</h1>
-    <ul>
-      <li><a href="download.html">Download it</a>.</li> 
-      <li><a href="getting-started.html">Use it</a>.</li>
-    </ul>
-  </body>
-</html>
+<head>
+  <title>Making EJBs Testable</title>
+</head>
+<body>
+<h1>About XJB</h1>
 
+<h2>XJB is a testing framework for Enterprise JavaBeans</h2>
+<p>XJB enables development and testing of <a href="http://java.sun.com/products/ejb/" target="1">
+Enterprise JavaBeans</a> without having to keep assembling and deploying into a container.
+It is designed to allow a rapid code/test cycle, and to be simple to use. It keeps the
+container out of your way while you develop your EJBs.</p>
+
+<h2>XJB is designed for legacy applications</h2>
+<p>Real applications grow. Many enterprise developers do not have the luxury of working on
+small, "green field" projects, and legacy J2EE applications in particular tend to be big,
+unwieldy beasts modelled on Sun's original <em>PetStore</em> showcase application.</p>
+<p>XJB allows you to quickly test changes to a legacy code base - that is its primary
+purpose. If you are developing a new application from the ground up, we would hope you
+would have no need for XJB! Experience has shown that keeping the business logic separate
+from the container or lifecycle plumbing leads to a more testable system and a happier
+life.</p>
+
+<h2>XJB is not a container</h2>
+<p>Here are some things that XJB doesn't do:
+<ul>
+    <li>It doesn't have a fancy thread pool, or in fact do any multi-threading at all.</li>
+    <li>It doesn't "deploy". So no ejbc stub generation or compilation.</li>
+    <li>It doesn't do remoting. At all. Not a bit.</li>
+    <li>It doesn't support entity beans.</li>
+</ul>
+</p>
+<p>On the other hand, here are some things it does do:
+<ul>
+    <li>It creates home and remote proxies, so you get all the regular EJB plumbing.</li>
+    <li>It understands the EJB lifecycle, so <tt>setSessionContext</tt>, <tt>ejbCreateXxx</tt>, etc. all get called at the right times.</li>
+    <li>It provides a JNDI initial context, so your client can look up EJBs and datasources.</li>
+    <li>It provides local EJB contexts, so your EJBs can look up other EJBs.</li>
+    <li>It provides various <tt>javax.sql.DataSource</tt> <a href="datasources.html">implementations</a>.</li>
+    <li>It (nearly) supports container-managed transactions (CMT).</li>
+    <li>It understands <tt>ejb-jar.xml</tt> so your test setup can be a
+        <a href="getting-started.html#ejbjar">single line of code</a>.</li>
+</ul>
+</p>
+
+<h2>Warning</h2>
+<p>XJB is currently in heavy development while <a href="team.html">the
+team</a> works towards a stable 1.0 release. We don't currently
+recommend its use in production projects but would be grateful if
+developers try out the latest <a href="download.html#snapshot">development
+snapshot</a> or a version straight from the <a href="repository.html">repository</a>
+and send us feedback. Announcements of alpha, beta and final releases of version
+1.0 will be sent to the <a href="mailing-lists.html">mailing lists</a>.</p>
+
+<h1>Getting Started</h1>
+<ul>
+  <li><a href="download.html">Download it</a>.</li>
+  <li><a href="getting-started.html">Use it</a>.</li>
+</ul>
+</body>
+</html>

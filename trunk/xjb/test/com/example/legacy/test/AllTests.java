@@ -19,6 +19,7 @@ public class AllTests {
         //$JUnit-BEGIN$
         suite.addTestSuite(HardCodedTest.class);
         suite.addTestSuite(EjbJarXmlTest.class);
+        suite.addTestSuite(GreetingServiceTest.class);
         //$JUnit-END$
         return suite;
     }

@@ -26,7 +26,7 @@ import electric.xml.XPath;
         <data-sources>
             <data-source>
                 <jndi-name>jdbc/dataSource</jndi-name>
-                <driver-class></driver-class>
+                <driver-class>some.JdbcDriver</driver-class>
                 <jdbc-url>jdbc:some:url</jdbc-url>
                 <user>dbo</user>
                 <password>secret</password>

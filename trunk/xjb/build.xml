@@ -1,4 +1,5 @@
 <project name="xjb" default="test">
+	<property name="project" value="${ant.project.name}"/>
 	<property name="src.dir" location="src"/>
 	<property name="test.dir" location="test"/>
 	<property name="lib.dir" location="lib"/>
@@ -6,8 +7,9 @@
 	<property name="build.dir" location="build"/>
 	<property name="classes.dir" location="${build.dir}/classes"/>
 	<property name="test.classes.dir" location="${build.dir}/test-classes"/>
-	<property name="dist.dir" location="${build.dir}/dist"/>
-	<property name="jar.file" location="${dist.dir}/${ant.project.name}.jar"/>
+	<property name="jar.file" location="${build.dir}/${project}.jar"/>
+	<property name="snapshot.jar.file" location="${build.dir}/${project}-SNAPSHOT.jar"/>
+	<property name="dist.dir" location="dist"/>
 	
 	<target name="-init">
 		<mkdir dir="${build.dir}"/>
@@ -22,16 +24,15 @@
 		</javac>
 	</target>
 
-	<target name="dist" depends="compile">
+	<target name="jar" depends="compile">
 		<mkdir dir="${dist.dir}"/>
 		<copy todir="${classes.dir}">
 			<fileset dir="${src.dir}" excludes="**/*.java"/>
 		</copy>
 		<jar basedir="${classes.dir}" destfile="${jar.file}"/>
-		<copy todir="${dist.dir}" file="${lib.dir}/EXML.jar"/>
 	</target>
 	
-	<target name="test.compile" depends="dist">
+	<target name="test" depends="jar">
 		<mkdir dir="${test.classes.dir}"/>
 		<javac fork="true" srcdir="${test.dir}" destdir="${test.classes.dir}">
 			<classpath>
@@ -39,9 +40,6 @@
 				<pathelement location="${jar.file}"/>
 			</classpath>
 		</javac>
-	</target>
-	
-	<target name="test" depends="test.compile">
 		<junit fork="yes" showoutput="yes" printsummary="yes" haltonfailure="true">
 			<formatter type="xml"/>
 			<classpath>
@@ -53,13 +51,21 @@
 		</junit>
 	</target>
 	
+	<target name="snapshot" depends="-init">
+		<jar destfile="${snapshot.jar.file}">
+			<zipfileset prefix="src" dir="${src.dir}"/>
+			<zipfileset prefix="test" dir="${test.dir}"/>
+			<zipfileset prefix="lib" dir="${lib.dir}"/>
+			<fileset dir="." includes="build.xml"/>
+		</jar>
+	</target>
+	
 	<target name="clean">
 		<delete dir="${build.dir}"/>
 	</target>
 	
-	<target name="clobber" depends="clean">
-		<delete dir="${dist.dir}"/>
+	<target name="dist" depends="jar, snapshot">
 	</target>
 	
-	<target name="rebuild" depends="clobber, dist"/>
+	<target name="rebuild" depends="clean, dist"/>
 </project>

@@ -100,11 +100,11 @@ public class XjbRemoteFactory implements RemoteFactory {
         }
     }
     
-    public EJBObject createRemote(String ejbName, Class remoteInterface, EJBHome ejbHome, Object impl) {
-        return createRemote(ejbName, remoteInterface, ejbHome, impl, PolicyLookup.NULL, TransactionPolicyHandler.NULL);
+    public EJBObject createRemote(String ejbName, EJBHome ejbHome, Class remoteInterface, Object impl) {
+        return createRemote(ejbName, ejbHome, remoteInterface, impl, PolicyLookup.NULL, TransactionPolicyHandler.NULL);
     }
 
-    public EJBObject createRemote(String ejbName, Class remoteInterface, EJBHome ejbHome, Object impl, PolicyLookup policyLookup, TransactionPolicyHandler handler) {
+    public EJBObject createRemote(String ejbName, EJBHome ejbHome, Class remoteInterface, Object impl, PolicyLookup policyLookup, TransactionPolicyHandler handler) {
         final RemoteInvocationHandler invocationHandler = new RemoteInvocationHandler(ejbName, impl, policyLookup, handler);
 		final EJBObject result = (EJBObject) Proxy.newProxyInstance(
                 remoteInterface.getClassLoader(),
