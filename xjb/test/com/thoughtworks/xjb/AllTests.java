@@ -16,7 +16,7 @@ import com.thoughtworks.xjb.cmt.RemoteFactoryTransactionHandlingTest;
 import com.thoughtworks.xjb.cmt.SessionContextTransactionHandlingTest;
 import com.thoughtworks.xjb.cmt.XjbTransactionHandlerTest;
 import com.thoughtworks.xjb.cmt.XjbTransactionTest;
-import com.thoughtworks.xjb.config.ejbjar.EjbJarConfiguratorTest;
+import com.thoughtworks.xjb.config.ejbjar.EjbJarParserTest;
 import com.thoughtworks.xjb.config.resources.ResourceConfiguratorTest;
 import com.thoughtworks.xjb.ejb.HomeFactoryTest;
 import com.thoughtworks.xjb.ejb.RemoteFactoryTest;
@@ -44,7 +44,7 @@ public class AllTests {
         suite.addTestSuite(XjbTransactionHandlerTest.class);
         suite.addTestSuite(SessionContextTransactionHandlingTest.class);
         suite.addTestSuite(XjbTransactionTest.class);
-        suite.addTestSuite(EjbJarConfiguratorTest.class);
+        suite.addTestSuite(EjbJarParserTest.class);
         suite.addTestSuite(ResourceConfiguratorTest.class);
         suite.addTestSuite(JdbcDataSourceFactoryTest.class);
         suite.addTestSuite(NullDriverTest.class);
