@@ -1,13 +1,6 @@
 Get a subcontext java:comp/env, look up foo (should work), look up java:comp/env/foo (should work)
 
 Next:
-- EjbJarParser takes XmlEjbJarConfigurator in its constructor
-	- Configurator has registerCommonNames method - use this rather than InitialContext to do test setup
-
-- Change quick-start - parser first
-
-- Ant builds javadoc and website
-- Ant dist puts javadoc, website, snapshot into correct places in build/public_html
 
 - Hook TransactionAccessor into DataSource (transaction.addConnection(conn) for each new connection)
 - Parse ejb-jar.xml transaction attributes
