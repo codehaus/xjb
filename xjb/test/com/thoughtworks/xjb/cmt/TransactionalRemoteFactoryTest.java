@@ -149,7 +149,6 @@ public class TransactionalRemoteFactoryTest extends MockObjectTestCase {
         public SessionContext context;
 
         public void setSessionContext(SessionContext context) {
-            System.out.println("Context = " + context);
             this.context = context;
         }
         

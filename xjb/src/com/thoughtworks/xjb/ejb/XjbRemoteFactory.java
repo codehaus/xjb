@@ -14,9 +14,6 @@ import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.SessionBean;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.thoughtworks.proxy.Invoker;
 import com.thoughtworks.proxy.factory.StandardProxyFactory;
 import com.thoughtworks.proxy.toys.decorate.DecoratingInvoker;
@@ -24,6 +21,8 @@ import com.thoughtworks.proxy.toys.decorate.InvocationDecoratorSupport;
 import com.thoughtworks.proxy.toys.delegate.DelegatingInvoker;
 import com.thoughtworks.proxy.toys.delegate.DelegationException;
 import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
+import com.thoughtworks.xjb.log.Log;
+import com.thoughtworks.xjb.log.LogFactory;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
@@ -103,7 +102,7 @@ public class XjbRemoteFactory implements RemoteFactory {
 			}
 		}
         else {
-            log.trace("Not a session bean: " + impl);
+            log.debug("Not a session bean: " + impl);
         }
 		return result;
 	}
