@@ -10,10 +10,10 @@ package com.thoughtworks.xjb.jdbc;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 
-import com.thoughtworks.proxytoys.DelegatingProxy;
+import com.thoughtworks.proxy.toys.delegate.DelegatingInvoker;
 
 
-class NonClosingConnectionInvocationHandler extends DelegatingProxy.DelegatingInvocationHandler {
+class NonClosingConnectionInvocationHandler extends DelegatingInvoker {
 
     public NonClosingConnectionInvocationHandler(Connection conn) {
         super(conn);

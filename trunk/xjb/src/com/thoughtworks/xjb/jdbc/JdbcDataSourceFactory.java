@@ -12,32 +12,32 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import com.thoughtworks.xjb.cmt.TransactionAccessor;
+import com.thoughtworks.xjb.cmt.TransactionGetter;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
  public class JdbcDataSourceFactory implements DataSourceFactory {
-    private final TransactionAccessor transactionAccessor;
+    private final TransactionGetter transactionGetter;
     
-    public JdbcDataSourceFactory(TransactionAccessor transactionAccessor) {
-        this.transactionAccessor = transactionAccessor;
+    public JdbcDataSourceFactory(TransactionGetter transactionGetter) {
+        this.transactionGetter = transactionGetter;
     }
 
 	public JdbcDataSourceFactory() {
-		this(TransactionAccessor.NULL);
+		this(TransactionGetter.NULL);
 	}
 
 	public DataSource createNonClosingDataSource(Connection conn) {
         return (DataSource)Proxy.newProxyInstance(DataSource.class.getClassLoader(),
             new Class[] {DataSource.class},
-            new SingleConnectionInvocationHandler(conn));
+            new SingleConnectionInvocationHandler(transactionGetter, conn));
     }
 
 	public DataSource createDriverManagerDataSource(String url, String user, String password) {
         return (DataSource)Proxy.newProxyInstance(DataSource.class.getClassLoader(),
                 new Class[] {DataSource.class},
-                new DriverManagerDataSourceInvocationHandler(transactionAccessor, url, user, password));
+                new DriverManagerDataSourceInvocationHandler(transactionGetter, url, user, password));
 	}
 
 	public DataSource createDriverManagerDataSource(String url) {

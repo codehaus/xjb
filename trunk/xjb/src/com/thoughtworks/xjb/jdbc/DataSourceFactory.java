@@ -10,7 +10,7 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import com.thoughtworks.nothing.Null;
+import com.thoughtworks.proxy.toys.nullobject.Null;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
@@ -19,4 +19,5 @@ public interface DataSourceFactory {
     
 	DataSource createNonClosingDataSource(Connection conn);
 	DataSource createDriverManagerDataSource(String url, String user, String password);
+	DataSource createDriverManagerDataSource(String url);
 }

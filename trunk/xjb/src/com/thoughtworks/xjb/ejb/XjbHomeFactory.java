@@ -8,16 +8,15 @@
 package com.thoughtworks.xjb.ejb;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.rmi.RemoteException;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 
-import com.thoughtworks.proxytoys.DelegatingProxy;
-import com.thoughtworks.xjb.cmt.PolicyLookup;
-import com.thoughtworks.xjb.cmt.TransactionPolicyHandler;
+import com.thoughtworks.proxy.factory.StandardProxyFactory;
+import com.thoughtworks.proxy.toys.delegate.DelegatingInvoker;
+import com.thoughtworks.proxy.toys.delegate.DelegationException;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
@@ -26,22 +25,19 @@ public class XjbHomeFactory implements HomeFactory {
     /**
      * Manages all calls to the EJBHome object
      */
-    private class HomeInvocationHandler extends DelegatingProxy.DelegatingInvocationHandler {
+    private class SessionHomeInvoker extends DelegatingInvoker {
         private final String ejbName;
         private final Class homeInterface;
         private final Class remoteInterface;
         private final boolean stateful;
-		private final PolicyLookup lookup;
-		private final TransactionPolicyHandler handler;
         
-        public HomeInvocationHandler(String ejbName, Class homeInterface, Class remoteInterface, Object impl, boolean stateful, PolicyLookup lookup, TransactionPolicyHandler handler) {
+        public SessionHomeInvoker(
+                String ejbName, Class homeInterface, Class remoteInterface, Object impl, boolean stateful) {
             super(impl);
             this.ejbName = ejbName;
             this.homeInterface = homeInterface;
             this.remoteInterface = remoteInterface;
             this.stateful = stateful;
-            this.lookup = lookup;
-            this.handler = handler;
         }
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -53,26 +49,30 @@ public class XjbHomeFactory implements HomeFactory {
                 return new XjbEJBMetaData(ejbHome, homeInterface, remoteInterface, stateful);
             }
             else if ("toString".equals(method.getName())) {
-                return "Home proxy for " + delegate.toString();
+                return "Home proxy for " + delegate().toString();
             }
             else {
                 throw new UnsupportedOperationException(method.getName());
             }
         }
 
-        private EJBObject createRemote(EJBHome ejbHome, Method method, Object[] args) throws CreateException, RemoteException, Throwable {
+        private EJBObject createRemote(EJBHome ejbHome, Method ejbCreateMethod, Object[] args) throws CreateException, RemoteException, Throwable {
             final EJBObject remoteProxy = createRemoteProxy(ejbHome);
-            callEjbCreate(method, args);
+            callEjbCreate(ejbCreateMethod, args);
             return remoteProxy;
         }
         
         private EJBObject createRemoteProxy(EJBHome ejbHome) throws CreateException, RemoteException {
-            return remoteFactory.createRemote(ejbName, ejbHome, remoteInterface, delegate, lookup, handler);
+            return remoteFactory.createRemote(ejbName, ejbHome, remoteInterface, delegate());
         }
         
         private void callEjbCreate(Method method, Object[] args) throws Throwable {
             final String ejbCreate = "ejbC" + method.getName().substring(1);
-            invokeOnDelegate(ejbCreate, method.getParameterTypes(), args);
+            try {
+	            super.invokeOnDelegate(getDelegateMethod(ejbCreate, method.getParameterTypes()), args);
+            } catch (DelegationException e) {
+                throw new RemoteException(e.getMessage(), e.getCause());
+            }
         }
     }
 
@@ -87,17 +87,13 @@ public class XjbHomeFactory implements HomeFactory {
     }
     
     public EJBHome createHome(String ejbName, Class homeInterface, Class remoteInterface, Object impl) {
-        return createSessionBeanHome(ejbName, homeInterface, remoteInterface, impl, true);
-    }
-    
-    public EJBHome createSessionBeanHome(String ejbName, Class homeInterface, Class remoteInterface, Object impl, boolean stateless) {
-        return createHome(ejbName, homeInterface, remoteInterface, impl, stateless, PolicyLookup.NULL, TransactionPolicyHandler.NULL);
+        return createSessionHome(ejbName, homeInterface, remoteInterface, impl, true);
     }
 
-	public EJBHome createHome(String ejbName, Class homeInterface, Class remoteInterface, Object impl, boolean stateless, PolicyLookup lookup, TransactionPolicyHandler handler) {
-        return (EJBHome)Proxy.newProxyInstance(
-                homeInterface.getClassLoader(),
-                new Class[] {homeInterface},
-                new HomeInvocationHandler(ejbName, homeInterface, remoteInterface, impl, stateless, lookup, handler));
+    public EJBHome createSessionHome(String ejbName, Class homeInterface,
+			Class remoteInterface, Object impl, boolean stateless) {
+		return (EJBHome) new StandardProxyFactory().createProxy(
+				new Class[]{homeInterface}, new SessionHomeInvoker(ejbName,
+						homeInterface, remoteInterface, impl, stateless));
 	}
 }

@@ -13,30 +13,30 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import com.thoughtworks.xjb.cmt.TransactionAccessor;
+import com.thoughtworks.xjb.cmt.TransactionGetter;
 
 
 class DriverManagerDataSourceInvocationHandler implements InvocationHandler {
-	private final TransactionAccessor transactionAccessor;
+	private final TransactionGetter transactionGetter;
 	private final String url;
 	private final String defaultUser;
 	private final String defaultPassword;
 	
-	public DriverManagerDataSourceInvocationHandler(TransactionAccessor transactionAccessor, String url, String user, String password) {
-        this.transactionAccessor = transactionAccessor;
+	public DriverManagerDataSourceInvocationHandler(TransactionGetter transactionGetter, String url, String user, String password) {
+        this.transactionGetter = transactionGetter;
 		this.url = url;
 		this.defaultUser = user;
 		this.defaultPassword = password;
 	}
 	
-	public DriverManagerDataSourceInvocationHandler(TransactionAccessor transactionAccessor, String url) {
-        this(transactionAccessor, url, "", "");
+	public DriverManagerDataSourceInvocationHandler(TransactionGetter transactionGetter, String url) {
+        this(transactionGetter, url, "", "");
 	}
     
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if ("getConnection".equals(method.getName())) {
             Connection conn = getConnection(args);
-            transactionAccessor.getTransaction().registerConnection(conn);
+            transactionGetter.getTransaction().registerConnection(conn);
             return conn;
 		}
 		else if ("toString".equals(method.getName())) {

@@ -15,20 +15,17 @@ import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
 
-import com.thoughtworks.xjb.cmt.Transaction;
-import com.thoughtworks.xjb.cmt.TransactionalSessionContext;
-
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class XjbSessionContext implements TransactionalSessionContext {
+public class XjbSessionContext implements SessionContext {
     private final EJBHome home;
     private final EJBObject remote;
-    private Transaction transaction = Transaction.NULL;
     
     private boolean rollbackOnly = false;
 
@@ -37,10 +34,6 @@ public class XjbSessionContext implements TransactionalSessionContext {
         this.remote = remote;
     }
     
-    public void setTransaction(Transaction transaction) {
-        this.transaction = transaction;
-    }
-
 	public EJBObject getEJBObject() throws IllegalStateException {
         return remote;
     }
@@ -50,7 +43,6 @@ public class XjbSessionContext implements TransactionalSessionContext {
     }
 
     public void setRollbackOnly() throws IllegalStateException {
-        transaction.setRollbackOnly();
         rollbackOnly = true;
     }
 
@@ -61,42 +53,42 @@ public class XjbSessionContext implements TransactionalSessionContext {
     // NOTHING IS IMPLEMENTED BELOW HERE!!
     
     public EJBLocalObject getEJBLocalObject() throws IllegalStateException {
-        throw new UnsupportedOperationException("getEJBLocalObject");
+        throw new UnsupportedOperationException();
     }
 
     public EJBLocalHome getEJBLocalHome() {
-        throw new UnsupportedOperationException("getEJBLocalHome");
+        throw new UnsupportedOperationException();
     }
 
     public Properties getEnvironment() {
-        throw new UnsupportedOperationException("getEnvironment");
+        throw new UnsupportedOperationException();
     }
 
     public Identity getCallerIdentity() {
-        throw new UnsupportedOperationException("getCallerIdentity");
+        throw new UnsupportedOperationException();
     }
 
     public Principal getCallerPrincipal() {
-        throw new UnsupportedOperationException("getCallerPrincipal");
+        throw new UnsupportedOperationException();
     }
 
     public boolean isCallerInRole(Identity arg0) {
-        throw new UnsupportedOperationException("isCallerInRole");
+        throw new UnsupportedOperationException();
     }
 
     public boolean isCallerInRole(String arg0) {
-        throw new UnsupportedOperationException("isCallerInRole");
+        throw new UnsupportedOperationException();
     }
 
     public UserTransaction getUserTransaction() throws IllegalStateException {
-        throw new UnsupportedOperationException("getUserTransaction");
-    }
-
-    public MessageContext getMessageContext() throws IllegalStateException {
-        throw new UnsupportedOperationException("getMessageContext");
+        throw new UnsupportedOperationException();
     }
 
     public TimerService getTimerService() throws IllegalStateException {
-        throw new UnsupportedOperationException("getTimerService");
+        throw new UnsupportedOperationException();
     }
+
+	public MessageContext getMessageContext() throws IllegalStateException {
+		throw new UnsupportedOperationException();
+	}
 }

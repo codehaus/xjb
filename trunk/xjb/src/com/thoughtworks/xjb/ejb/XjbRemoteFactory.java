@@ -8,55 +8,53 @@
 package com.thoughtworks.xjb.ejb;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.rmi.RemoteException;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.SessionBean;
-import javax.ejb.SessionContext;
 
-import com.thoughtworks.proxytoys.DelegatingProxy;
-import com.thoughtworks.xjb.cmt.Policy;
-import com.thoughtworks.xjb.cmt.PolicyLookup;
-import com.thoughtworks.xjb.cmt.Transaction;
-import com.thoughtworks.xjb.cmt.TransactionPolicyHandler;
-import com.thoughtworks.xjb.cmt.TransactionalSessionContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.thoughtworks.proxy.Invoker;
+import com.thoughtworks.proxy.factory.StandardProxyFactory;
+import com.thoughtworks.proxy.toys.decorate.DecoratingInvoker;
+import com.thoughtworks.proxy.toys.decorate.InvocationDecoratorSupport;
+import com.thoughtworks.proxy.toys.delegate.DelegatingInvoker;
+import com.thoughtworks.proxy.toys.delegate.DelegationException;
 import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
 public class XjbRemoteFactory implements RemoteFactory {
-    private static class RemoteInvocationHandler extends DelegatingProxy.DelegatingInvocationHandler {
+    
+    private static final Log log = LogFactory.getLog(XjbRemoteFactory.class);
+
+	/**
+     * Replace any <tt>DelegationException</tt> with a <tt>RemoteException</tt>
+     */
+    private static class RemoteDecorator extends InvocationDecoratorSupport {
+		public Throwable decorateException(Throwable cause) {
+          if (cause instanceof DelegationException) {
+              DelegationException oops = (DelegationException) cause;
+              return new RemoteException(oops.getMessage(), oops.getCause());
+          }
+          else {
+              return cause;
+          }
+      }
+	}
+
+	private static class EJBObjectInvoker extends DelegatingInvoker {
         private final String ejbName;
-        private final PolicyLookup policyLookup;
-        private final TransactionPolicyHandler handler;
-        private TransactionalSessionContext context;
+        private final EJBHome ejbHome;
         
-        public RemoteInvocationHandler(String ejbName, Object impl, PolicyLookup policyLookup, TransactionPolicyHandler handler) {
+        public EJBObjectInvoker(String ejbName, EJBHome ejbHome, Object impl) {
             super(impl);
             this.ejbName = ejbName;
-            this.policyLookup = policyLookup;
-            this.handler = handler;
-        }
-        
-		public void setSessionContext(TransactionalSessionContext context) {
-			this.context = context;
-			if (delegate instanceof SessionBean) {
-				callSetSessionContext();
-			}
-		}
-        
-        private void callSetSessionContext() {
-            try {
-                invokeOnDelegate("setSessionContext", new Class[] {SessionContext.class}, new Object[] {context});
-			} catch (RuntimeException e) {
-                throw e;
-			} catch (Error e) {
-                throw e;
-			} catch (Throwable e) {
-                throw new RuntimeException("Unexpected exception: " + e + ": " + e.getMessage());
-            }
+            this.ejbHome = ejbHome;
         }
         
         public Object invoke(Object proxy, Method method, Object[] args)
@@ -64,30 +62,20 @@ public class XjbRemoteFactory implements RemoteFactory {
             String oldContextName = XjbInitialContextFactory.getLocalContextName();
             try {
                 Object result;
-                
-                Policy policy = policyLookup.lookupPolicyFor(method);
-            	Transaction transaction = handler.beforeMethodStarts(policy);
-                context.setTransaction(transaction);
-                
 	            XjbInitialContextFactory.setLocalContext(ejbName);
                 if (isEjbMethod("remove", method)) {
-                    result = invokeOnDelegate("ejbRemove", new Class[0], args);
+                    result = invokeOnDelegate(getDelegateMethod("ejbRemove", null), args);
                 }
                 else if (isEjbMethod("getEJBHome", method)) {
-                    result = context.getEJBHome();
+                    result = ejbHome;
                 }
                 else if (isEjbMethod("isIdentical", method)) {
-                    result = (proxy == args[0] ? Boolean.TRUE : Boolean.FALSE);
+                    result = Boolean.valueOf(proxy == args[0]);
                 }
                 else {
                     result = super.invoke(proxy, method, args);
                 }
-                handler.afterMethodEnds();
                 return result;
-            }
-            catch (Exception e) {
-                handler.afterMethodFails();
-                throw e;
             }
             finally {
             	XjbInitialContextFactory.setLocalContext(oldContextName);
@@ -100,19 +88,27 @@ public class XjbRemoteFactory implements RemoteFactory {
         }
     }
     
-    public EJBObject createRemote(String ejbName, EJBHome ejbHome, Class remoteInterface, Object impl) {
-        return createRemote(ejbName, ejbHome, remoteInterface, impl, PolicyLookup.NULL, TransactionPolicyHandler.NULL);
-    }
+	public EJBObject createRemote(String ejbName, EJBHome ejbHome, Class remoteInterface, Object impl) {
+		final Invoker ejbInvoker = new EJBObjectInvoker(ejbName, ejbHome, impl);
+        final Invoker remoteInvoker = new DecoratingInvoker(ejbInvoker, new RemoteDecorator());
+        
+		final EJBObject result =
+             (EJBObject) new StandardProxyFactory().createProxy(new Class[]{remoteInterface}, remoteInvoker);
+		if (impl instanceof SessionBean) {
+			try {
+				((SessionBean) impl).setSessionContext(createSessionContext(ejbHome, result));
+			} catch (RemoteException e) {
+				throw new RuntimeException(
+						"Problem calling setSessionContext for " + ejbName + ": " + e.getMessage());
+			}
+		}
+        else {
+            log.trace("Not a session bean: " + impl);
+        }
+		return result;
+	}
 
-    public EJBObject createRemote(String ejbName, EJBHome ejbHome, Class remoteInterface, Object impl, PolicyLookup policyLookup, TransactionPolicyHandler handler) {
-        final RemoteInvocationHandler invocationHandler = new RemoteInvocationHandler(ejbName, impl, policyLookup, handler);
-		final EJBObject result = (EJBObject) Proxy.newProxyInstance(
-                remoteInterface.getClassLoader(),
-                new Class[] {remoteInterface},
-                invocationHandler);
-        
-        invocationHandler.setSessionContext(new XjbSessionContext(ejbHome, result));
-        
-        return result;
-    }
+	protected XjbSessionContext createSessionContext(EJBHome ejbHome, final EJBObject remote) {
+		return new XjbSessionContext(ejbHome, remote);
+	}
 }

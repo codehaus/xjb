@@ -13,23 +13,29 @@ import java.sql.SQLException;
 
 import junit.framework.TestCase;
 
-import com.thoughtworks.nothing.Null;
+import com.thoughtworks.proxy.toys.nullobject.Null;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
 public class NullDriverTest extends TestCase {
-    public void testShouldRegisterItself() throws Exception {
+    public void setUp() {
+        NullDriver.clear();
+    }
+    
+    public void testShouldRegisterItselfAgainstUrlPrefix() throws Exception {
 		// execute
-        NullDriver.class.getName();
+        NullDriver.registerDriverForPrefix("jdbc:foo");
+        NullDriver.registerDriverForPrefix("jdbc:bar");
         
 		// verify
-        assertTrue(DriverManager.getDriver("jdbc:null") instanceof NullDriver);
+        assertTrue(DriverManager.getDriver("jdbc:foo:url") instanceof NullDriver);
+        assertTrue(DriverManager.getDriver("jdbc:bar:url") instanceof NullDriver);
 	}
     
     public void testShouldReturnNullConnection() throws Exception {
 		// setup
-        NullDriver.class.getName();
+        NullDriver.registerDriverForPrefix("jdbc:null");
         
 		// execute
         Connection conn = DriverManager.getConnection("jdbc:null");
@@ -39,15 +45,52 @@ public class NullDriverTest extends TestCase {
         assertTrue(Null.isNullObject(conn));
 	}
     
-    public void testShouldNotReturnNullConnectionForUnknownUrl() throws Exception {
-		// setup
-        NullDriver.class.getName();
-
-        // execute
+    private void assertNotRegistered(String url) {
         try {
-			DriverManager.getConnection("jdbc:unknown");
-            fail("should have failed");
+//            System.out.println("Checking url: " + url);
+//            System.out.println("Found " + DriverManager.getDrivers().);
+//            for (Enumeration e = DriverManager.getDrivers(); e != null && e.hasMoreElements(); ) {
+//                Object driver = e.nextElement();
+//				System.out.println(driver.toString());
+//            }
+			DriverManager.getConnection(url);
+            fail("url " + url + " should not have been registered");
 		} catch (SQLException expected) {
 		}
+    }
+    
+    public void testShouldNotReturnNullConnectionForUnknownUrl() throws Exception {
+		// setup
+        NullDriver.class.getName(); // ensure NullDriver is registered
+
+        // execute
+        assertNotRegistered("jdbc:unknown");
+	}
+
+	public void testShouldClearRegisteredUrls() throws Exception {
+		// setup
+		NullDriver.registerDriverForPrefix("jdbc:foo");
+		NullDriver.registerDriverForPrefix("jdbc:bar");
+        
+		// execute
+        NullDriver.clear();
+        
+		// verify
+        assertNotRegistered("jdbc:foo");
+        assertNotRegistered("jdbc:bar");
+	}
+    
+    public void testShouldDeregisterIndividualUrlPrefix() throws Exception {
+		// setup
+        NullDriver.clear();
+        NullDriver.registerDriverForPrefix("jdbc:foo");
+        NullDriver.registerDriverForPrefix("jdbc:bar");
+		
+		// execute
+        NullDriver.deregisterDriverForPrefix("jdbc:foo");
+        
+		// verify
+        assertNotRegistered("jdbc:foo");
+        assertTrue(DriverManager.getDriver("jdbc:bar") instanceof NullDriver);
 	}
 }
