@@ -125,10 +125,10 @@ public class EjbJarParserTest extends MockObjectTestCase {
         assertFalse("should not be stateless", home.getEJBMetaData().isStatelessSession());
     }
     
-    private void assertCannotResolveClass(String testName, String home, String remote, String ejbClass) throws Exception {
+    private void assertCannotResolveClass(String whatsMissing, String home, String remote, String ejbClass) throws Exception {
         try {
 			parser.read(simpleBeanXml(home, remote, ejbClass, true));
-            fail("Missing " + testName + " should have thrown RemoteException");
+            fail("Missing " + whatsMissing + " should have thrown RemoteException");
         } catch (RemoteException e) {
             // expected
         }

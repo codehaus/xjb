@@ -22,12 +22,11 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.thoughtworks.xjb.ejb.XjbHomeFactory;
 import com.thoughtworks.xjb.jndi.JndiRegistry;
 import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
+import com.thoughtworks.xjb.log.Log;
+import com.thoughtworks.xjb.log.LogFactory;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>

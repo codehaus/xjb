@@ -14,6 +14,8 @@
 
 	<property name="dist.dir" location="dist" />
 	
+	<property name="build.compiler" value="jikes" />
+	
 	<path id="jars">
 		<fileset dir="${lib.dir}" includes="**/*.jar" />
 	</path>
@@ -38,7 +40,7 @@
 	
 	<target name="test" depends="jar">
 		<mkdir dir="${test.classes.dir}" />
-		<javac fork="true" srcdir="${test.dir}" destdir="${test.classes.dir}" debug="on">
+		<javac srcdir="${test.dir}" destdir="${test.classes.dir}" debug="on">
 			<classpath>
 				<path refid="jars" />
 				<pathelement location="${jar.file}" />
@@ -87,7 +89,7 @@
 		<delete dir="${build.dir}" />
 	</target>
 	
-	<target name="clobber">
+	<target name="clobber" depends="clean">
 		<delete dir="${dist.dir}" />
 	</target>
 	

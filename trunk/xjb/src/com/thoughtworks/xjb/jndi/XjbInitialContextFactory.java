@@ -19,8 +19,8 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.NamingManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.thoughtworks.xjb.log.Log;
+import com.thoughtworks.xjb.log.LogFactory;
 
 
 public class XjbInitialContextFactory implements JndiRegistry, InitialContextFactory {
@@ -115,7 +115,7 @@ public class XjbInitialContextFactory implements JndiRegistry, InitialContextFac
      * @return a dynamic {@link Proxy} representing the <tt>Context</tt>
      */
     public Context getInitialContext(Hashtable environment) throws NamingException {
-        log.trace("Getting initial context - current local context = " + localContextName);
+        log.debug("Getting initial context - current local context = " + localContextName);
         return (Context) Proxy.newProxyInstance(
                 Context.class.getClassLoader(),
                 new Class[]{Context.class},

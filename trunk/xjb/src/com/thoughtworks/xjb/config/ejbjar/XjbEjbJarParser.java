@@ -15,11 +15,10 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.thoughtworks.xjb.jndi.JndiRegistry;
 import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
+import com.thoughtworks.xjb.log.Log;
+import com.thoughtworks.xjb.log.LogFactory;
 
 import electric.xml.Document;
 import electric.xml.Element;

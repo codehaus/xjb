@@ -13,8 +13,8 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.thoughtworks.xjb.log.Log;
+import com.thoughtworks.xjb.log.LogFactory;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
@@ -27,7 +27,7 @@ class XjbInitialContextFactoryBuilder implements InitialContextFactoryBuilder {
     }
 
     public InitialContextFactory createInitialContextFactory(Hashtable environment) throws NamingException {
-        log.trace("Can we build it, yes we can!");
+        log.debug("Can we build it, yes we can!");
         return new XjbInitialContextFactory();
     }
 }
