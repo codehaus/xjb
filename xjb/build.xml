@@ -1,71 +1,105 @@
 <project name="xjb" default="test">
-	<property name="project" value="${ant.project.name}"/>
-	<property name="src.dir" location="src"/>
-	<property name="test.dir" location="test"/>
-	<property name="lib.dir" location="lib"/>
+	<property name="project" value="${ant.project.name}" />
+	<property name="src.dir" location="src" />
+	<property name="test.dir" location="test" />
+	<property name="lib.dir" location="lib" />
+	<property name="website.dir" location="website" />
 	
-	<property name="build.dir" location="build"/>
-	<property name="classes.dir" location="${build.dir}/classes"/>
-	<property name="test.classes.dir" location="${build.dir}/test-classes"/>
-	<property name="jar.file" location="${build.dir}/${project}.jar"/>
-	<property name="snapshot.jar.file" location="${build.dir}/${project}-SNAPSHOT.jar"/>
-	<property name="dist.dir" location="dist"/>
+	<property name="build.dir" location="build" />
+	<property name="classes.dir" location="${build.dir}/classes" />
+	<property name="javadoc.dir" location="${build.dir}/docs/javadoc" />
+	<property name="test.classes.dir" location="${build.dir}/test-classes" />
+	<property name="jar.file" location="${build.dir}/${project}.jar" />
+	<property name="snapshot.jar.file" location="${build.dir}/${project}-SNAPSHOT.jar" />
+
+	<property name="dist.dir" location="dist" />
+	
+	<path id="jars">
+		<fileset dir="${lib.dir}" includes="**/*.jar" />
+	</path>
 	
 	<target name="-init">
-		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${build.dir}" />
 	</target>
 	
 	<target name="compile" depends="-init">
-		<mkdir dir="${classes.dir}"/>
-		<javac srcdir="${src.dir}" destdir="${classes.dir}" debug="yes">
-			<classpath>
-				<fileset dir="${lib.dir}" includes="*.jar"/>
-			</classpath>
-		</javac>
+		<mkdir dir="${classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${classes.dir}"
+			classpathref="jars" debug="yes" />
 	</target>
 
 	<target name="jar" depends="compile">
-		<mkdir dir="${dist.dir}"/>
+		<mkdir dir="${dist.dir}" />
 		<copy todir="${classes.dir}">
-			<fileset dir="${src.dir}" excludes="**/*.java"/>
+			<fileset dir="${src.dir}" excludes="**/*.java" />
 		</copy>
-		<jar basedir="${classes.dir}" destfile="${jar.file}"/>
+		<jar basedir="${classes.dir}" destfile="${jar.file}" />
 	</target>
 	
 	<target name="test" depends="jar">
-		<mkdir dir="${test.classes.dir}"/>
-		<javac fork="true" srcdir="${test.dir}" destdir="${test.classes.dir}">
+		<mkdir dir="${test.classes.dir}" />
+		<javac fork="true" srcdir="${test.dir}" destdir="${test.classes.dir}" debug="on">
 			<classpath>
-				<fileset dir="${lib.dir}" includes="**/*.jar"/>
-				<pathelement location="${jar.file}"/>
+				<path refid="jars" />
+				<pathelement location="${jar.file}" />
 			</classpath>
 		</javac>
 		<junit fork="yes" showoutput="yes" printsummary="yes" haltonfailure="true">
-			<formatter type="xml"/>
+			<formatter type="xml" />
 			<classpath>
-				<path location="${test.classes.dir}"/>
-				<fileset dir="${lib.dir}" includes="**/*.jar"/>
-				<path location="${jar.file}"/>
+				<path location="${test.classes.dir}" />
+				<path location="${jar.file}" />
+				<path refid="jars" />
 			</classpath>
-			<test name="com.thoughtworks.xjb.AllTests" todir="${test.classes.dir}"/>
+			<test name="com.thoughtworks.xjb.AllTests" todir="${test.classes.dir}" />
 		</junit>
 	</target>
 	
 	<target name="snapshot" depends="-init">
 		<jar destfile="${snapshot.jar.file}">
-			<zipfileset prefix="src" dir="${src.dir}"/>
-			<zipfileset prefix="test" dir="${test.dir}"/>
-			<zipfileset prefix="lib" dir="${lib.dir}"/>
-			<fileset dir="." includes="build.xml"/>
+			<zipfileset prefix="src" dir="${src.dir}" />
+			<zipfileset prefix="test" dir="${test.dir}" />
+			<zipfileset prefix="lib" dir="${lib.dir}" excludes="j2ee.jar"/>
+			<fileset dir="." includes="build.xml" />
 		</jar>
 	</target>
 	
+	<target name="javadoc" depends="-init">
+		<mkdir dir="${javadoc.dir}" />
+        <javadoc destdir="${javadoc.dir}" stylesheetfile="website/templates/xjb.css"
+         windowtitle="XJB - Making EJBs testable">
+    		<fileset dir="${src.dir}" />
+    		<fileset dir="${test.dir}" />
+    		<classpath>
+    			<path refid="jars" />
+    			<pathelement location="${ant.home}/lib/junit.jar" />
+    		</classpath>
+    	</javadoc>
+	</target>
+	
+	<target name="website">
+		<exec executable="ruby" dir="${website.dir}">
+			<arg value="skinner.rb"/>
+		</exec>
+	</target>
+	
 	<target name="clean">
-		<delete dir="${build.dir}"/>
+		<delete dir="${build.dir}" />
 	</target>
 	
-	<target name="dist" depends="jar, snapshot">
+	<target name="clobber">
+		<delete dir="${dist.dir}" />
 	</target>
 	
-	<target name="rebuild" depends="clean, dist"/>
+	<target name="dist" depends="jar, snapshot, website, javadoc">
+		<mkdir dir="${dist.dir}"/>
+		<copy todir="${dist.dir}">
+			<fileset dir="${website.dir}/output" />
+			<fileset dir="${build.dir}" includes="docs/**" />
+		</copy>
+		<mkdir dir="${dist.dir}/dist"/>
+		<copy todir="${dist.dir}/dist" file="${snapshot.jar.file}" />
+	</target>
+	
+	<target name="rebuild" depends="clobber, dist" />
 </project>

@@ -108,7 +108,7 @@ public class EjbJarParserTest extends TestCase {
         // verify
 		assertInstanceOf(SimpleHome.class, mapRegistry.get("Simple"));
 		assertInstanceOf(SimpleHome.class, mapRegistry.get("ejb/Simple"));
-		assertInstanceOf(SimpleHome.class, mapRegistry.get("com/thoughtworks/xjb/config/ejbjar/EjbJarConfiguratorTest$Simple"));
+		assertInstanceOf(SimpleHome.class, mapRegistry.get("com/thoughtworks/xjb/config/ejbjar/EjbJarParserTest$Simple"));
     }
 
 	private Reader statefulXml() {
