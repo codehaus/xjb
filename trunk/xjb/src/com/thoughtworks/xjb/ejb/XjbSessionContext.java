@@ -15,7 +15,9 @@ import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.ejb.TimerService;
 import javax.transaction.UserTransaction;
+import javax.xml.rpc.handler.MessageContext;
 
 import com.thoughtworks.xjb.cmt.Transaction;
 import com.thoughtworks.xjb.cmt.TransactionalSessionContext;
@@ -88,5 +90,13 @@ public class XjbSessionContext implements TransactionalSessionContext {
 
     public UserTransaction getUserTransaction() throws IllegalStateException {
         throw new UnsupportedOperationException("getUserTransaction");
+    }
+
+    public MessageContext getMessageContext() throws IllegalStateException {
+        throw new UnsupportedOperationException("getMessageContext");
+    }
+
+    public TimerService getTimerService() throws IllegalStateException {
+        throw new UnsupportedOperationException("getTimerService");
     }
 }
