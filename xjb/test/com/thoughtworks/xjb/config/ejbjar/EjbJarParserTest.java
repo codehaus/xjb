@@ -16,13 +16,8 @@ import javax.ejb.EJBObject;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import junit.framework.TestCase;
-
 import org.jmock.Mock;
-import org.jmock.core.mixin.Invoked;
-import org.jmock.core.mixin.Is;
-import org.jmock.core.mixin.Return;
-import org.jmock.core.mixin.Throw;
+import org.jmock.MockObjectTestCase;
 
 import com.thoughtworks.xjb.config.MapRegistry;
 import com.thoughtworks.xjb.ejb.SessionBeanSupport;
@@ -30,7 +25,7 @@ import com.thoughtworks.xjb.ejb.SessionBeanSupport;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class EjbJarParserTest extends TestCase {
+public class EjbJarParserTest extends MockObjectTestCase {
 
     private MapRegistry mapRegistry;
     private Mock contextMock;
@@ -280,13 +275,13 @@ public class EjbJarParserTest extends TestCase {
     
     public void testShouldResolveResourceReferencesIntoLocalContext() throws Exception {
     	// setup
-    	contextMock.expects(Invoked.once()).method("lookup")
-			.with(Is.equal("some/Resource"))
-			.will(Return.value("first resource"));
+    	contextMock.expects(once()).method("lookup")
+			.with(eq("some/Resource"))
+			.will(returnValue("first resource"));
         
-    	contextMock.expects(Invoked.once()).method("lookup")
-			.with(Is.equal("some/OtherResource"))
-			.will(Return.value("second resource"));
+    	contextMock.expects(once()).method("lookup")
+			.with(eq("some/OtherResource"))
+			.will(returnValue("second resource"));
 
     	// execute
 		parser.read(beanWithResourceRefXml());
@@ -299,9 +294,9 @@ public class EjbJarParserTest extends TestCase {
     
     public void testShouldThrowRemoteExceptionIfUnableToResolveResourceReference() throws Exception {
     	// setup
-    	contextMock.expects(Invoked.once()).method("lookup")
-			.with(Is.equal("some/Resource"))
-			.will(Throw.exception(new NamingException()));
+    	contextMock.expects(once()).method("lookup")
+			.with(eq("some/Resource"))
+			.will(throwException(new NamingException()));
 
         // execute
         try {

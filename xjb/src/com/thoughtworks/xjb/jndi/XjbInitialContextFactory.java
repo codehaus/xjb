@@ -19,11 +19,12 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.NamingManager;
 
-import com.thoughtworks.xjb.util.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 public class XjbInitialContextFactory implements JndiRegistry, InitialContextFactory {
-    private static final Logger log = Logger.getLogger(XjbInitialContextFactory.class);
+    private static final Log log = LogFactory.getLog(XjbInitialContextFactory.class);
 
     private static final Map localContexts = new HashMap();
     private static final HashMap globalContext = new HashMap(); // we use HashMap.clone()
@@ -114,7 +115,7 @@ public class XjbInitialContextFactory implements JndiRegistry, InitialContextFac
      * @return a dynamic {@link Proxy} representing the <tt>Context</tt>
      */
     public Context getInitialContext(Hashtable environment) throws NamingException {
-        log.debug("Getting initial context - current local context = " + localContextName);
+        log.trace("Getting initial context - current local context = " + localContextName);
         return (Context) Proxy.newProxyInstance(
                 Context.class.getClassLoader(),
                 new Class[]{Context.class},

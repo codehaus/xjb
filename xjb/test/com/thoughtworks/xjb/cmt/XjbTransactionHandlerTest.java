@@ -9,9 +9,6 @@ package com.thoughtworks.xjb.cmt;
 
 import javax.ejb.EJBException;
 
-import org.jmock.core.mixin.Invoked;
-import org.jmock.core.mixin.Throw;
-
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
@@ -60,7 +57,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         handler.onInvoke(Transaction.REQUIRED);
         
         // expect
-        transactionMock.expects(Invoked.once()).method(commitUnlessRollbackOnly).withNoArguments();
+        transactionMock.expects(once()).method(commitUnlessRollbackOnly).withNoArguments();
         
         // execute
         handler.onSuccess();
@@ -78,7 +75,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         handler.onInvoke(Transaction.REQUIRED);
         
         // expect
-        otherFactoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
+        otherFactoryMock.expects(never()).method(createTransaction).withNoArguments();
         
         // execute
         TransactionPolicyHandler anotherHandler = new XjbTransactionHandler(otherFactory);
@@ -94,8 +91,8 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         TransactionPolicyHandler otherHandler = new XjbTransactionHandler(otherFactory);
         
         // expect
-        otherTransactionMock.expects(Invoked.never()).method(commitUnlessRollbackOnly).withNoArguments();
-        otherFactoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
+        otherTransactionMock.expects(never()).method(commitUnlessRollbackOnly).withNoArguments();
+        otherFactoryMock.expects(never()).method(createTransaction).withNoArguments();
         
         // execute
         otherHandler.onInvoke(Transaction.REQUIRED);
@@ -113,7 +110,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         handler.onInvoke(Transaction.REQUIRED);
         
         // expect
-        transactionMock.expects(Invoked.once()).method(rollback).withNoArguments();
+        transactionMock.expects(once()).method(rollback).withNoArguments();
         
         // execute
         handler.onFailure();
@@ -130,7 +127,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         handler.onInvoke(Transaction.REQUIRED);
         
         // expect
-        transactionMock.expects(Invoked.never()).method(rollback).withNoArguments();
+        transactionMock.expects(never()).method(rollback).withNoArguments();
         
         // execute
         handler.onFailure();
@@ -157,7 +154,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     public void testShouldCommitTransactionWhenRequiresNewMethodSucceeds() throws Exception {
 		// setup
         factoryMockWillReturnTransactionMock();
-        transactionMock.expects(Invoked.once()).method(commitUnlessRollbackOnly).withNoArguments();
+        transactionMock.expects(once()).method(commitUnlessRollbackOnly).withNoArguments();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
         handler.onInvoke(Transaction.REQUIRES_NEW);
         
@@ -172,7 +169,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     public void testShouldRollbackTransactionWhenRequiresNewMethodFails() throws Exception {
 		// setup
         factoryMockWillReturnTransactionMock();
-        transactionMock.expects(Invoked.once()).method(rollback).withNoArguments();
+        transactionMock.expects(once()).method(rollback).withNoArguments();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
         handler.onInvoke(Transaction.REQUIRES_NEW);
         
@@ -219,7 +216,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
         
         // expect
-        factoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
+        factoryMock.expects(never()).method(createTransaction).withNoArguments();
         
         // execute
         handler.onInvoke(Transaction.SUPPORTS);
@@ -235,7 +232,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         TransactionPolicyHandler otherHandler = new XjbTransactionHandler(otherFactory);
         
         // expect
-        otherFactoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
+        otherFactoryMock.expects(never()).method(createTransaction).withNoArguments();
         
         // execute
         otherHandler.onInvoke(Transaction.SUPPORTS);
@@ -252,7 +249,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
         
         // expect
-        factoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
+        factoryMock.expects(never()).method(createTransaction).withNoArguments();
         
         // execute
         handler.onInvoke(Transaction.NOT_SUPPORTED);
@@ -322,7 +319,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         TransactionPolicyHandler otherHandler = new XjbTransactionHandler(otherFactory);
         
         // expect
-        otherFactoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
+        otherFactoryMock.expects(never()).method(createTransaction).withNoArguments();
         
         // execute
         otherHandler.onInvoke(Transaction.MANDATORY);
@@ -337,7 +334,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
         
         // expect
-        transactionMock.expects(Invoked.never()).method(commitUnlessRollbackOnly).withNoArguments();
+        transactionMock.expects(never()).method(commitUnlessRollbackOnly).withNoArguments();
         
         // execute
         handler.onInvoke(Transaction.MANDATORY);
@@ -353,7 +350,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         TransactionPolicyHandler handler = new XjbTransactionHandler(TransactionFactory.NULL);
         
         // expect
-        transactionMock.expects(Invoked.never()).method(rollback).withNoArguments();
+        transactionMock.expects(never()).method(rollback).withNoArguments();
         
         // execute
         handler.onInvoke(Transaction.MANDATORY);
@@ -381,7 +378,7 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
     
     public void testShouldNotCreateTransactionIfNoneExistsWhenNeverMethodIsInvoked() throws Exception {
 		// setup
-        factoryMock.expects(Invoked.never()).method(createTransaction).withNoArguments();
+        factoryMock.expects(never()).method(createTransaction).withNoArguments();
         TransactionPolicyHandler handler = new XjbTransactionHandler(factory);
         
         // execute
@@ -425,8 +422,8 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         TransactionPolicyHandler otherHandler = new XjbTransactionHandler(otherFactory);
         
         // expect
-        otherTransactionMock.expects(Invoked.once()).method(commitUnlessRollbackOnly).withNoArguments()
-            .will(Throw.exception(new EJBException("oops")));
+        otherTransactionMock.expects(once()).method(commitUnlessRollbackOnly).withNoArguments()
+            .will(throwException(new EJBException("oops")));
         
         // execute
         otherHandler.onInvoke(Transaction.REQUIRES_NEW); // first transaction is suspended
@@ -448,8 +445,8 @@ public class XjbTransactionHandlerTest extends TransactionMockingTestCase {
         TransactionPolicyHandler otherHandler = new XjbTransactionHandler(otherFactory);
         
         // expect
-        otherTransactionMock.expects(Invoked.once()).method(rollback).withNoArguments()
-            .will(Throw.exception(new EJBException("oops")));
+        otherTransactionMock.expects(once()).method(rollback).withNoArguments()
+            .will(throwException(new EJBException("oops")));
         
         
         // execute

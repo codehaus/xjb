@@ -17,10 +17,6 @@ import javax.ejb.SessionContext;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.jmock.core.mixin.Invoked;
-import org.jmock.core.mixin.Is;
-import org.jmock.core.mixin.Return;
-import org.jmock.core.mixin.Throw;
 
 import com.thoughtworks.proxy.toys.nullobject.Null;
 import com.thoughtworks.xjb.ejb.RemoteFactory;
@@ -84,14 +80,14 @@ public class TransactionalRemoteFactoryTest extends MockObjectTestCase {
         Policy thePolicy = Transaction.NOT_SUPPORTED;
         
         // expect
-        policyLookupMock.expects(Invoked.once())
-            .method(lookupPolicyFor).with(Is.equal(getSimpleMethod("doSomething")))
-            .will(Return.value(thePolicy));
+        policyLookupMock.expects(once())
+            .method(lookupPolicyFor).with(eq(getSimpleMethod("doSomething")))
+            .will(returnValue(thePolicy));
         
-        policyHandlerMock.expects(Invoked.once())
-            .method(onInvoke).with(Is.equal(thePolicy));
+        policyHandlerMock.expects(once())
+            .method(onInvoke).with(eq(thePolicy));
         
-        beanMock.expects(Invoked.once())
+        beanMock.expects(once())
             .method(doSomething).withNoArguments()
             .after(policyHandlerMock, onInvoke);
         
@@ -104,14 +100,14 @@ public class TransactionalRemoteFactoryTest extends MockObjectTestCase {
         Policy thePolicy = Transaction.REQUIRED;
         
         // expect
-        policyLookupMock.expects(Invoked.once())
-            .method(lookupPolicyFor).with(Is.equal(getSimpleMethod("doSomething")))
-            .will(Return.value(thePolicy));
+        policyLookupMock.expects(once())
+            .method(lookupPolicyFor).with(eq(getSimpleMethod("doSomething")))
+            .will(returnValue(thePolicy));
         
-        beanMock.expects(Invoked.once())
+        beanMock.expects(once())
             .method(doSomething).withNoArguments();
         
-        policyHandlerMock.expects(Invoked.once())
+        policyHandlerMock.expects(once())
             .method(onSuccess).withNoArguments()
             .after(beanMock, doSomething);
         
@@ -125,15 +121,15 @@ public class TransactionalRemoteFactoryTest extends MockObjectTestCase {
         Policy thePolicy = Transaction.REQUIRED;
         
         // expect
-        policyLookupMock.expects(Invoked.once())
-            .method(lookupPolicyFor).with(Is.equal(getSimpleMethod("doSomething")))
-            .will(Return.value(thePolicy));
+        policyLookupMock.expects(once())
+            .method(lookupPolicyFor).with(eq(getSimpleMethod("doSomething")))
+            .will(returnValue(thePolicy));
         
-		beanMock.expects(Invoked.once())
+		beanMock.expects(once())
             .method(doSomething).withNoArguments()
-            .will(Throw.exception(anException));
+            .will(throwException(anException));
         
-        policyHandlerMock.expects(Invoked.once())
+        policyHandlerMock.expects(once())
             .method(onFailure).withNoArguments()
             .after(beanMock, doSomething);
         
@@ -170,16 +166,16 @@ public class TransactionalRemoteFactoryTest extends MockObjectTestCase {
         DoesRollbackBean impl = new DoesRollbackBean();
         
         // expect
-        policyLookupMock.expects(Invoked.once()).method(lookupPolicyFor).withAnyArguments()
-		    .will(Return.value(Transaction.REQUIRES_NEW));
+        policyLookupMock.expects(once()).method(lookupPolicyFor).withAnyArguments()
+		    .will(returnValue(Transaction.REQUIRES_NEW));
 
-        transactionFactoryMock.expects(Invoked.once()).method(createTransaction).withNoArguments()
-            .will(Return.value(transactionMock.proxy()));
+        transactionFactoryMock.expects(once()).method(createTransaction).withNoArguments()
+            .will(returnValue(transactionMock.proxy()));
         
-        transactionGetterMock.expects(Invoked.once()).method("getTransaction").withNoArguments()
-            .will(Return.value(transactionMock.proxy()));
+        transactionGetterMock.expects(once()).method("getTransaction").withNoArguments()
+            .will(returnValue(transactionMock.proxy()));
         
-        transactionMock.expects(Invoked.once()).method(setRollbackOnly).withNoArguments();
+        transactionMock.expects(once()).method(setRollbackOnly).withNoArguments();
         
         // execute
         RemoteFactory factory = new CmtRemoteFactory(

@@ -12,12 +12,8 @@ import java.io.StringReader;
 
 import javax.sql.DataSource;
 
-import junit.framework.TestCase;
-
 import org.jmock.Mock;
-import org.jmock.core.mixin.Invoked;
-import org.jmock.core.mixin.Is;
-import org.jmock.core.mixin.Return;
+import org.jmock.MockObjectTestCase;
 
 import com.thoughtworks.proxy.toys.nullobject.Null;
 import com.thoughtworks.xjb.config.MapRegistry;
@@ -26,7 +22,7 @@ import com.thoughtworks.xjb.jdbc.DataSourceFactory;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class ResourceConfiguratorTest extends TestCase {
+public class ResourceConfiguratorTest extends MockObjectTestCase {
     private static final String createDriverManagerDataSource = "createDriverManagerDataSource";
 	private static boolean firstTestDriverClassLoaded;
     private static boolean secondTestDriverClassLoaded;
@@ -73,13 +69,13 @@ public class ResourceConfiguratorTest extends TestCase {
         
     	Mock mockFactory = new Mock(DataSourceFactory.class);
     	
-        mockFactory.expects(Invoked.once()).method(createDriverManagerDataSource)
-            .with(Is.equal("jdbc:test:one"), Is.equal("first"), Is.equal("first-secret"))
-		    .will(Return.value(Null.object(DataSource.class)));
+        mockFactory.expects(once()).method(createDriverManagerDataSource)
+            .with(eq("jdbc:test:one"), eq("first"), eq("first-secret"))
+		    .will(returnValue(Null.object(DataSource.class)));
         
-    	mockFactory.expects(Invoked.once()).method(createDriverManagerDataSource)
-            .with(Is.equal("jdbc:test:two"), Is.equal("second"), Is.equal("second-secret"))
-		    .will(Return.value(Null.object(DataSource.class)));
+    	mockFactory.expects(once()).method(createDriverManagerDataSource)
+            .with(eq("jdbc:test:two"), eq("second"), eq("second-secret"))
+		    .will(returnValue(Null.object(DataSource.class)));
         
         DataSourceFactory dataSourceFactory = (DataSourceFactory) mockFactory.proxy();
         

@@ -15,12 +15,11 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.thoughtworks.xjb.config.ejbjar.EjbConfigurator;
-import com.thoughtworks.xjb.config.ejbjar.EjbJarParser;
-import com.thoughtworks.xjb.config.ejbjar.XjbEjbConfigurator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.thoughtworks.xjb.jndi.JndiRegistry;
 import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
-import com.thoughtworks.xjb.util.Logger;
 
 import electric.xml.Document;
 import electric.xml.Element;
@@ -32,7 +31,7 @@ import electric.xml.Elements;
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
 public class XjbEjbJarParser implements EjbJarParser {
-    private static final Logger log = Logger.getLogger(XjbEjbJarParser.class);
+    private static final Log log = LogFactory.getLog(XjbEjbJarParser.class);
     private final EjbConfigurator configurator;
 
     public XjbEjbJarParser(JndiRegistry jndiRegistry, Context context) throws NamingException {

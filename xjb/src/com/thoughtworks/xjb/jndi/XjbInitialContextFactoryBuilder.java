@@ -13,20 +13,21 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 
-import com.thoughtworks.xjb.util.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
 class XjbInitialContextFactoryBuilder implements InitialContextFactoryBuilder {
-    private static final Logger log = Logger.getLogger(XjbInitialContextFactoryBuilder.class);
+    private static final Log log = LogFactory.getLog(XjbInitialContextFactoryBuilder.class);
 
     public XjbInitialContextFactoryBuilder() {
         log.debug("Constructing factory");
     }
 
     public InitialContextFactory createInitialContextFactory(Hashtable environment) throws NamingException {
-        log.debug("Can we build it, yes we can!");
+        log.trace("Can we build it, yes we can!");
         return new XjbInitialContextFactory();
     }
 }

@@ -13,11 +13,8 @@ import javax.ejb.CreateException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 
-import junit.framework.TestCase;
-
 import org.jmock.Mock;
-import org.jmock.core.mixin.Invoked;
-import org.jmock.core.mixin.Return;
+import org.jmock.MockObjectTestCase;
 
 import com.thoughtworks.xjb.ejb.HomeFactory;
 import com.thoughtworks.xjb.ejb.SessionBeanSupport;
@@ -26,7 +23,7 @@ import com.thoughtworks.xjb.ejb.XjbHomeFactory;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class TransactionalHomeFactoryTest extends TestCase {
+public class TransactionalHomeFactoryTest extends MockObjectTestCase {
 
     private static final String onInvoke = "onInvoke";
     private static final String lookupPolicyFor = "lookupPolicyFor";
@@ -52,10 +49,10 @@ public class TransactionalHomeFactoryTest extends TestCase {
         handlerMock.stubs();
         
         // expect
-        lookupMock.expects(Invoked.once()).method(lookupPolicyFor).withAnyArguments()
-            .will(Return.value(Policy.NULL));
+        lookupMock.expects(once()).method(lookupPolicyFor).withAnyArguments()
+            .will(returnValue(Policy.NULL));
         
-        handlerMock.expects(Invoked.once()).method(onInvoke).withAnyArguments();
+        handlerMock.expects(once()).method(onInvoke).withAnyArguments();
         
         // execute
         HomeFactory factory = new XjbHomeFactory(

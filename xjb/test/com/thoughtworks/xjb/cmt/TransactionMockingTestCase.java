@@ -7,17 +7,13 @@
  */
 package com.thoughtworks.xjb.cmt;
 
-import junit.framework.TestCase;
-
 import org.jmock.Mock;
-import org.jmock.core.mixin.Invoked;
-import org.jmock.core.mixin.Return;
-import org.jmock.util.Verifier;
+import org.jmock.MockObjectTestCase;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class TransactionMockingTestCase extends TestCase {
+public class TransactionMockingTestCase extends MockObjectTestCase {
 
 	protected static final String createTransaction = "createTransaction";
     protected static final String commitUnlessRollbackOnly = "commitUnlessRollbackOnly";
@@ -45,17 +41,13 @@ public class TransactionMockingTestCase extends TestCase {
 	    XjbTransactionHandler.transaction = Transaction.NULL;
 	}
 
-	protected void verify() throws Exception {
-	    Verifier.verifyObject(this);
-	}
-
 	/**
 	 * Set up <tt>factoryMock</tt> to return <tt>transactionMock</tt> for
 	 * <tt>factory.getTransaction()</tt>
 	 */
 	protected void factoryMockWillReturnTransactionMock() {
-	    factoryMock.expects(Invoked.once()).method(createTransaction).withNoArguments()
-	        .will(Return.value(transactionMock.proxy()));
+	    factoryMock.expects(once()).method(createTransaction).withNoArguments()
+	        .will(returnValue(transactionMock.proxy()));
 	}
 
 	/** Get current singleton (ThreadLocal in real life) transaction */
@@ -69,7 +61,7 @@ public class TransactionMockingTestCase extends TestCase {
 	}
 
 	protected void otherFactoryMockWillReturnOtherTransactionMock() {
-	    otherFactoryMock.expects(Invoked.once()).method(createTransaction).withNoArguments()
-	        .will(Return.value(otherTransactionMock.proxy()));
+	    otherFactoryMock.expects(once()).method(createTransaction).withNoArguments()
+	        .will(returnValue(otherTransactionMock.proxy()));
 	}
 }
