@@ -21,29 +21,9 @@ import com.thoughtworks.xjb.ejb.XjbSessionContext;
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
 public class CmtRemoteFactory extends XjbRemoteFactory {
-
-    private static final Method isIdentical;
-    static {
-        try {
-			isIdentical = EJBObject.class.getMethod("isIdentical", new Class[] {EJBObject.class});
-		} catch (Exception e) {
-			throw new NoSuchMethodError("EJBObject.isIdentical(EJBObject)");
-		}
-    }
-    
 	private class TransactionalDecorator implements InvocationDecorator {
-        private boolean overrideResult = false;
-        private Object result = null;
         
 		public Object[] beforeMethodStarts(Object proxy, Method method, Object[] args) {
-            if (isIdentical.equals(method)) {
-                System.err.println(3);
-                overrideResult = true;
-                result = Boolean.valueOf(proxy == this);
-            }
-            else {
-                overrideResult = false;
-            }
             Policy policy = policyLookup.lookupPolicyFor(method);
             handler.onInvoke(policy);
             return args;
@@ -51,7 +31,7 @@ public class CmtRemoteFactory extends XjbRemoteFactory {
         
 		public Object decorateResult(Object before) {
             handler.onSuccess();
-            return overrideResult ? result : before;
+            return before;
 		}
         
 		public Throwable decorateTargetException(Throwable cause) {
