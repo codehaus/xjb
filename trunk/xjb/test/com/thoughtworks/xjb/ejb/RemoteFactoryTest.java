@@ -15,10 +15,8 @@ import javax.ejb.EJBObject;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import junit.framework.TestCase;
-
 import org.jmock.Mock;
-import org.jmock.core.mixin.Invoked;
+import org.jmock.MockObjectTestCase;
 
 import com.thoughtworks.xjb.jndi.JndiRegistry;
 import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
@@ -26,7 +24,7 @@ import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class RemoteFactoryTest extends TestCase {
+public class RemoteFactoryTest extends MockObjectTestCase {
     private static final String ejbRemove = "ejbRemove";
     
 	private Object globalObject;
@@ -79,7 +77,7 @@ public class RemoteFactoryTest extends TestCase {
         Simple simple = createRemote("Simple", Simple.class, mock.proxy());
         
         // expect
-        mock.expects(Invoked.once()).method(ejbRemove).withNoArguments().isVoid();
+        mock.expects(once()).method(ejbRemove).withNoArguments().isVoid();
         
         // execute
         simple.remove();

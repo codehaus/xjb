@@ -17,10 +17,8 @@ import javax.ejb.EJBObject;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 
-import junit.framework.TestCase;
-
 import org.jmock.Mock;
-import org.jmock.core.mixin.Invoked;
+import org.jmock.MockObjectTestCase;
 
 import com.thoughtworks.xjb.jndi.JndiRegistry;
 import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
@@ -28,7 +26,7 @@ import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class HomeFactoryTest extends TestCase {
+public class HomeFactoryTest extends MockObjectTestCase {
     
 	public interface Simple extends EJBObject {
         String getSomething() throws Exception;
@@ -50,7 +48,7 @@ public class HomeFactoryTest extends TestCase {
         HomeFactory homeFactory = new XjbHomeFactory((RemoteFactory) remoteFactoryMock.proxy());
         
 		// expect
-        remoteFactoryMock.expects(Invoked.once()).method("createRemote").withAnyArguments();
+        remoteFactoryMock.expects(once()).method("createRemote").withAnyArguments();
         
 		// execute
         SimpleHome home = (SimpleHome) homeFactory.createHome("simple", SimpleHome.class, Simple.class, new SimpleBean());

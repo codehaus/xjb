@@ -14,19 +14,15 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import junit.framework.TestCase;
-
 import org.jmock.Mock;
-import org.jmock.core.mixin.Invoked;
-import org.jmock.core.mixin.Is;
-import org.jmock.core.mixin.Return;
+import org.jmock.MockObjectTestCase;
 
 import com.thoughtworks.proxy.toys.nullobject.Null;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class JdbcDataSourceFactoryTest extends TestCase {
+public class JdbcDataSourceFactoryTest extends MockObjectTestCase {
     
     public void testShouldCreateDataSourceThatReusesSingleConnection() throws Exception {
         // setup
@@ -43,7 +39,7 @@ public class JdbcDataSourceFactoryTest extends TestCase {
     public void testShouldIgnoreCloseOnSingleConnectionDataSource() throws Exception {
         // setup
         Mock mock = new Mock(Connection.class);
-        mock.expects(Invoked.never()).method("close").withNoArguments();
+        mock.expects(never()).method("close").withNoArguments();
         Connection conn = (Connection)mock.proxy();
         
         // execute
@@ -81,9 +77,9 @@ public class JdbcDataSourceFactoryTest extends TestCase {
         expectedProperties.setProperty("password", "");
         
         // expect
-        driverMock.expects(Invoked.once()).method("connect")
-            .with(Is.equal("jdbc:mock"), Is.equal(expectedProperties))
-            .will(Return.value(Null.object(Connection.class)));
+        driverMock.expects(once()).method("connect")
+            .with(eq("jdbc:mock"), eq(expectedProperties))
+            .will(returnValue(Null.object(Connection.class)));
     	
     	// execute
 		DataSource ds = factory.createDriverManagerDataSource("jdbc:mock");

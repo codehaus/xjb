@@ -22,16 +22,18 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.thoughtworks.xjb.ejb.XjbHomeFactory;
 import com.thoughtworks.xjb.jndi.JndiRegistry;
 import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
-import com.thoughtworks.xjb.util.Logger;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
 public class XjbEjbConfigurator implements EjbConfigurator {
-    private static final Logger log = Logger.getLogger(XjbEjbConfigurator.class);
+    private static final Log log = LogFactory.getLog(XjbEjbConfigurator.class);
 
     /** Represents an <ejb-ref> element */
     private static class EjbRef {

@@ -11,16 +11,13 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.Collections;
 
-import junit.framework.TestCase;
-
 import org.jmock.Mock;
-import org.jmock.core.mixin.Invoked;
-import org.jmock.util.Verifier;
+import org.jmock.MockObjectTestCase;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class XjbTransactionTest extends TestCase {
+public class XjbTransactionTest extends MockObjectTestCase {
     private static final String commit = "commit";
 	private static final String rollback = "rollback";
 
@@ -34,10 +31,6 @@ public class XjbTransactionTest extends TestCase {
         conn2 = new Mock(Connection.class);
         txn.registerConnection((Connection) conn1.proxy());
         txn.registerConnection((Connection) conn2.proxy());
-    }
-    
-    private void verify() throws Exception {
-        Verifier.verifyObject(this);
     }
     
     public void testShouldAddTransactions() throws Exception {
@@ -79,8 +72,8 @@ public class XjbTransactionTest extends TestCase {
     
     public void testShouldCommitConnections() throws Exception {
         // expect
-        conn1.expects(Invoked.once()).method(commit).withNoArguments();
-        conn2.expects(Invoked.once()).method(commit).withNoArguments();
+        conn1.expects(once()).method(commit).withNoArguments();
+        conn2.expects(once()).method(commit).withNoArguments();
         
         // execute
         txn.commitUnlessRollbackOnly();
@@ -91,8 +84,8 @@ public class XjbTransactionTest extends TestCase {
     
     public void testShouldRollbackConnections() throws Exception {
         // expect
-        conn1.expects(Invoked.once()).method(rollback).withNoArguments();
-        conn2.expects(Invoked.once()).method(rollback).withNoArguments();
+        conn1.expects(once()).method(rollback).withNoArguments();
+        conn2.expects(once()).method(rollback).withNoArguments();
         
         // execute
         txn.rollback();
@@ -106,8 +99,8 @@ public class XjbTransactionTest extends TestCase {
         txn.setRollbackOnly();
         
         // expect
-        conn1.expects(Invoked.once()).method(rollback).withNoArguments();
-        conn2.expects(Invoked.once()).method(rollback).withNoArguments();
+        conn1.expects(once()).method(rollback).withNoArguments();
+        conn2.expects(once()).method(rollback).withNoArguments();
         
         // execute
         txn.commitUnlessRollbackOnly();
