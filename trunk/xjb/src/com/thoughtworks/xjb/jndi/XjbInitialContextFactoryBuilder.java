@@ -13,7 +13,7 @@ import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 
-import org.apache.log4j.Logger;
+import com.thoughtworks.xjb.util.Logger;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>

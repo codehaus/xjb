@@ -1,5 +1,10 @@
-<html>
-<head><title>Null Objects</title></head>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Null Objects</title>
+</head>
 <body>
     <h1>Null Objects</h1>
     <p>A null object is a regular object that behaves in a deterministically boring
@@ -17,7 +22,7 @@
 
     <p>We are using the null object implementation from
     <a href="http://proxytoys.codehaus.org">ProxyToys</a>, so the usage looks like:</p>
-    <div class="Java Source"><pre>
+    <div class="Shaded"><pre>
 public interface Transaction {
     Transaction <b>NULL</b> = (Transaction)<b>Null.object</b>(Transaction.class);
 }

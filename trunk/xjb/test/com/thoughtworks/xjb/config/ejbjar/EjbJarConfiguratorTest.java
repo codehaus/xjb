@@ -24,25 +24,26 @@ import org.jmock.core.mixin.Is;
 import org.jmock.core.mixin.Return;
 import org.jmock.core.mixin.Throw;
 
-import com.thoughtworks.xjb.config.*;
+import com.thoughtworks.xjb.config.MapRegistry;
 import com.thoughtworks.xjb.ejb.SessionBeanSupport;
-import com.thoughtworks.xjb.jndi.JndiRegistry;
 
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public abstract class EjbJarConfiguratorTestCase extends TestCase {
+public class EjbJarConfiguratorTest extends TestCase {
 
-	protected abstract EjbJarConfigurator createConfigurator(JndiRegistry registry, Context context) throws Exception;
+    private MapRegistry mapRegistry;
+    private Mock contextMock;
+    private EjbJarParser parser;
 
-	private MapRegistry mapRegistry;
-
-	private EjbJarConfigurator createConfigurator() throws Exception {
-		return createConfigurator(mapRegistry, null);
+	private EjbJarParser createParser() throws Exception {
+		return new XjbEjbJarParser(mapRegistry, null);
 	}
     
     public void setUp() throws Exception {
         mapRegistry = new MapRegistry();
+        contextMock = new Mock(Context.class);
+        parser = new XjbEjbJarParser(mapRegistry, (Context) contextMock.proxy());
     }
     
     public interface Simple extends EJBObject {
@@ -86,11 +87,8 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
     }
     
     public void testShouldConfigureStatelessSessionBean() throws Exception {
-        // setup
-        EjbJarConfigurator configurator = createConfigurator();
-        
         // execute
-		configurator.read(statelessXml());
+		parser.read(statelessXml());
         SimpleHome home = (SimpleHome) mapRegistry.get("Simple");
         String result = home.create().getSomething();
 		
@@ -104,16 +102,13 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
 	}
     
     public void testShouldMapBeanToCommonJndiNames() throws Exception {
-        // setup
-		EjbJarConfigurator configurator = createConfigurator();
-
         // execute
-		configurator.read(statelessXml());
+		parser.read(statelessXml());
 		
         // verify
 		assertInstanceOf(SimpleHome.class, mapRegistry.get("Simple"));
 		assertInstanceOf(SimpleHome.class, mapRegistry.get("ejb/Simple"));
-		assertInstanceOf(SimpleHome.class, mapRegistry.get("com/thoughtworks/xjb/config/ejbjar/EjbJarConfiguratorTestCase$Simple"));
+		assertInstanceOf(SimpleHome.class, mapRegistry.get("com/thoughtworks/xjb/config/ejbjar/EjbJarConfiguratorTest$Simple"));
     }
 
 	private Reader statefulXml() {
@@ -126,8 +121,7 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
 
     public void testShouldConfigureStatefulSessionBean() throws Exception {
         // execute
-		EjbJarConfigurator configurator = createConfigurator();
-		configurator.read(statefulXml());
+		parser.read(statefulXml());
         SimpleHome home = (SimpleHome) mapRegistry.get("Simple");
         String result = home.create().getSomething();
         
@@ -138,8 +132,7 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
     
     private void assertCannotResolveClass(String testName, String home, String remote, String ejbClass) throws Exception {
         try {
-            EjbJarConfigurator configurator = createConfigurator();
-			configurator.read(simpleBeanXml(home, remote, ejbClass, true));
+			parser.read(simpleBeanXml(home, remote, ejbClass, true));
             fail("Missing " + testName + " should have thrown RemoteException");
         } catch (RemoteException e) {
             // expected
@@ -202,7 +195,7 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
         
     public void testShouldConfigureEnvEntries() throws Exception {
         // execute
-        createConfigurator().read(beanWithEnvEntriesXml());
+        createParser().read(beanWithEnvEntriesXml());
         
         // verify
         assertEquals("string value", mapRegistry.get("EnvEntry|STRING"));
@@ -245,7 +238,7 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
     
     public void testShouldConfigureMultipleSessionBeans() throws Exception {
         // execute
-        createConfigurator().read(twoBeansXml());
+        createParser().read(twoBeansXml());
         SimpleHome simpleHome = (SimpleHome) mapRegistry.get("Simple");
         SimpleHome anotherHome = (SimpleHome) mapRegistry.get("Another");
 
@@ -287,7 +280,6 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
     
     public void testShouldResolveResourceReferencesIntoLocalContext() throws Exception {
     	// setup
-    	Mock contextMock = new Mock(Context.class);
     	contextMock.expects(Invoked.once()).method("lookup")
 			.with(Is.equal("some/Resource"))
 			.will(Return.value("first resource"));
@@ -295,11 +287,9 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
     	contextMock.expects(Invoked.once()).method("lookup")
 			.with(Is.equal("some/OtherResource"))
 			.will(Return.value("second resource"));
-    	
-        EjbJarConfigurator configurator = createConfigurator(mapRegistry, (Context) contextMock.proxy());
 
     	// execute
-		configurator.read(beanWithResourceRefXml());
+		parser.read(beanWithResourceRefXml());
 		
 		// verify
 		assertEquals("first resource", mapRegistry.get("ResourceRefBean|some/Resource"));
@@ -309,15 +299,13 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
     
     public void testShouldThrowRemoteExceptionIfUnableToResolveResourceReference() throws Exception {
     	// setup
-    	Mock contextMock = new Mock(Context.class);
     	contextMock.expects(Invoked.once()).method("lookup")
 			.with(Is.equal("some/Resource"))
 			.will(Throw.exception(new NamingException()));
-        EjbJarConfigurator configurator = createConfigurator(mapRegistry, (Context) contextMock.proxy());
 
         // execute
         try {
-			configurator.read(beanWithResourceRefXml());
+			parser.read(beanWithResourceRefXml());
             fail("should have thrown RemoteException");
         } catch (RemoteException e) {
             // verify
@@ -360,12 +348,10 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
     }
     
     public void testShouldResolveEjbLinkReferencesIntoLocalContext() throws Exception {
-    	// setup
-    	EjbJarConfigurator configurator = createConfigurator();
         
     	// execute
-    	configurator.read(statelessXml());
-        configurator.read(beanWithEjbRefXml());
+    	parser.read(statelessXml());
+        parser.read(beanWithEjbRefXml());
     	
     	// verify
         SimpleHome home = (SimpleHome) mapRegistry.get("BeanWithEjbRef|ejb/One");
@@ -442,12 +428,10 @@ public abstract class EjbJarConfiguratorTestCase extends TestCase {
     }
     
 	public void testShouldResolveCircularEjbLinksFromDifferentEjbJarXmlFiles() throws Exception {
-		// setup
-		EjbJarConfigurator configurator = createConfigurator();
 
 		// execute
-		configurator.read(circularEjbLinksPartOneXml());
-		configurator.read(circularEjbLinksPartTwoXml());
+		parser.read(circularEjbLinksPartOneXml());
+		parser.read(circularEjbLinksPartTwoXml());
 		
 		// verify
 		SimpleHome secondHome = (SimpleHome)mapRegistry.get("FirstBean|ejb/Other");

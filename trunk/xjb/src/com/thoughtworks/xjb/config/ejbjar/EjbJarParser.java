@@ -15,7 +15,19 @@ import java.rmi.RemoteException;
  * 
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public interface EjbJarConfigurator {
+public interface EjbJarParser {
+    
+    /**
+     * Read an <tt>ejb-jar.xml</tt> file from a <tt>Reader</tt>
+     * 
+     * @throws RemoteException if anything goes wrong
+     */
     void read(Reader in) throws RemoteException;
+    
+    /**
+     * Read an <tt>ejb-jar.xml</tt> file from a URL.
+     * 
+     * @throws RemoteException if anything goes wrong
+     */
     void read(String url) throws RemoteException;
 }

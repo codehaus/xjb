@@ -430,7 +430,7 @@ ul, ol {
 
 
 
-.Source pre {
+.Shaded pre {
 
     padding: 4px;
 
@@ -448,7 +448,7 @@ ul, ol {
 
 
 
-.Source:before {
+.Shaded:before {
 
     margin: 0px;
 

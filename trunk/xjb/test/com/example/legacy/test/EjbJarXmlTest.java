@@ -13,7 +13,7 @@ import java.io.StringReader;
 import junit.framework.TestCase;
 
 import com.example.legacy.client.ExampleActionBean;
-import com.thoughtworks.xjb.config.ejbjar.exml.ExmlEjbJarConfigurator;
+import com.thoughtworks.xjb.config.ejbjar.XjbEjbJarParser;
 
 /**
  * This example demonstrates configuring XJB using an ejb-jar.xml.
@@ -45,8 +45,8 @@ public class EjbJarXmlTest extends TestCase {
     }
     
     public void setUp() throws Exception {
-        new ExmlEjbJarConfigurator().read(ejbJarXml()); // could use a FileReader
-        // or: new ExmlEjbJarConfigurator().read("file:///path/to/some-ejb.jar!/META-INF/ejb-jar.xml");
+        new XjbEjbJarParser().read(ejbJarXml()); // could use a FileReader
+        // or: new XjbEjbJarParser().read("file:///path/to/some-ejb.jar!/META-INF/ejb-jar.xml");
     }
     
 	public void testShouldCallEjbMethodFromClient() throws Exception {

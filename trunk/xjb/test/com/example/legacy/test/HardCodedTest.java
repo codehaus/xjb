@@ -7,18 +7,14 @@
  */
 package com.example.legacy.test;
 
-import javax.ejb.EJBHome;
-
 import junit.framework.TestCase;
 
 import com.example.legacy.client.ExampleActionBean;
 import com.example.legacy.ejb.Example;
 import com.example.legacy.ejb.ExampleBean;
 import com.example.legacy.ejb.ExampleHome;
-import com.thoughtworks.xjb.ejb.HomeFactory;
-import com.thoughtworks.xjb.ejb.XjbHomeFactory;
-import com.thoughtworks.xjb.jndi.JndiRegistry;
-import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
+import com.thoughtworks.xjb.config.ejbjar.EjbConfigurator;
+import com.thoughtworks.xjb.config.ejbjar.XjbEjbConfigurator;
 
 /**
  * This example demonstrates hard-coding the EJB configuration and env-entries.
@@ -28,18 +24,16 @@ import com.thoughtworks.xjb.jndi.XjbInitialContextFactory;
 public class HardCodedTest extends TestCase {
     
     public void setUp() throws Exception {
-        JndiRegistry registry = new XjbInitialContextFactory();
+        EjbConfigurator configurator = new XjbEjbConfigurator();
+
+        configurator.registerEnvEntry("Example", "SOME_VALUE", String.class, "hello");
         
-        // register environment value
-        registry.register("Example", "SOME_VALUE", "hello");
-        
-        EJBHome home = new XjbHomeFactory().createHome(
+        configurator.registerSessionBean(
                 "Example",
                 ExampleHome.class,
                 Example.class,
-                new ExampleBean(),
-                HomeFactory.STATELESS);
-		registry.register("Example", home); // Registered as "java:comp/env/Example"
+                ExampleBean.class,
+                EjbConfigurator.STATELESS);
     }
     
     public void testShouldCallEjbMethodFromClient() throws Exception {

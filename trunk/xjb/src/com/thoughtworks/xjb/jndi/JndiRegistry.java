@@ -6,6 +6,8 @@
  * See license.txt for license details
  */
 package com.thoughtworks.xjb.jndi;
+
+
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
@@ -18,5 +20,5 @@ public interface JndiRegistry {
 	/**
 	 * Register an object against a particular JNDI name in local context
 	 */
-	void register(String contextName, String jndiName, Object object);
+	void register(String localContextName, String jndiName, Object object);
 }
