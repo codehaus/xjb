@@ -14,9 +14,9 @@ import com.thoughtworks.xjb.cmt.TransactionPolicyHandler;
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
 public interface RemoteFactory {
-	EJBObject createRemote(String ejbName, Class remoteInterface,
-			EJBHome ejbHome, Object impl);
-	EJBObject createRemote(String ejbName, Class remoteInterface,
-			EJBHome ejbHome, Object impl, PolicyLookup policyLookup,
+	EJBObject createRemote(String ejbName, EJBHome ejbHome,
+			Class remoteInterface, Object impl);
+	EJBObject createRemote(String ejbName, EJBHome ejbHome,
+			Class remoteInterface, Object impl, PolicyLookup policyLookup,
 			TransactionPolicyHandler handler);
 }

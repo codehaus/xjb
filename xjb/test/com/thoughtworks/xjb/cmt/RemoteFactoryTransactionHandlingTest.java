@@ -67,7 +67,7 @@ public class RemoteFactoryTransactionHandlingTest extends TestCase {
         
         beanMock = new Mock(Simple.class);
         remote = (Simple) new XjbRemoteFactory().createRemote(
-                "simple", Simple.class, NULL_EJB_HOME, beanMock.proxy(), 
+                "simple", NULL_EJB_HOME, Simple.class, beanMock.proxy(), 
                 (PolicyLookup) policyLookupMock.proxy(),
                 (TransactionPolicyHandler)policyHandlerMock.proxy());
         }
@@ -185,7 +185,7 @@ public class RemoteFactoryTransactionHandlingTest extends TestCase {
         
         // execute
         DoesRollback doesRollback = (DoesRollback) new XjbRemoteFactory().createRemote(
-                "ejb", DoesRollback.class, NULL_EJB_HOME, new DoesRollbackBean(),
+                "ejb", NULL_EJB_HOME, DoesRollback.class, new DoesRollbackBean(),
                 (PolicyLookup) policyLookupMock.proxy(),
                 handler);
         

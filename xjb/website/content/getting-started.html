@@ -1,114 +1,140 @@
 <html>
-  <head>
-    <title>Getting Started</title>
-  </head>
+  <head><title>Getting Started</title></head>
   <body>
-    <h1>Getting Started</h1>
-    
-    <p>This guide assumes you are familiar with unit-testing and 
-    <a href="http://junit.org/">JUnit</a>.</p>
-    
-    <p>For a simple example we are going to test a publish/subscribe message 
-    system. A Publisher sends objects to zero or more Subscribers.  We want 
-    to test the Publisher, which involves testing its interactions with its 
-    Subscribers.</p>
-   
-    <p>The Subscriber interface looks like this:</p>
-   
-    <div class="Source Java">
-<pre>interface Subscriber {
-    void receive(Object message);
-}</pre>
-    </div>
-  
-    <p>We will test that a Publisher sends a message to a single registered 
-    Subscriber. To test interactions between the Publisher and the Subscriber
-    we will use a mock Subscriber object.</p>
-    
-    <p>First we must import the jMock classes, define our test fixture class and
-    define a test case method.</p>
-    
-    <div class="Source Java">
-<pre>import org.jmock.*;
+    <h1>Two minute tutorial</h1>
 
-class PublisherTest extends MockObjectTestCase {
-    public void testOneSubscriberReceivesAMessage() {
+    <p>This guide assumes you are familiar with the basics of EJBs and unit-testing with
+    <a href="http://junit.org/" target="1">JUnit</a>. Skim it to get the basic idea
+    - the really interesting bits of code are in <b>bold</b> to make it even easier
+    to skim.</p>
+
+    <h1>The classes we want to test</h1>
+
+    <p>We are going to call a method on a stateless session bean, called
+    <tt>GreetingService</tt> which will say "hello". The GreetingService is made up of
+    a home and remote interface and an implementing class, that look like this:</p>
+    <div class="Source Java"><pre>
+public interface <b>GreetingServiceHome</b> extends EJBHome {
+    <b>GreetingService create()</b> throws RemoteException, CreateException;
+}
+
+public interface <b>GreetingService</b> extends EJBObject {
+    <b>String greet()</b> throws RemoteException;
+}
+
+public class <b>GreetingServiceBean</b> implements SessionBean {
+    public <b>String greet()</b> {
+        return "hello";
     }
-}</pre>
-    </div>
-    
-    <p>We will now write the body of the 
-    <code>testOneSubscriberReceivesAMessage</code> method.</p>
-    
-    <p>We first <i>set up</i> the context in which our test will execute.  
-    We create a Publisher to test.  We create a mock Subscriber that should 
-    receive the message.  We then register the Subscriber with the Publisher.  
-    Finally we create a message object to publish.</p>
-     
-    <div class="Source Java">
-<pre>Mock mockSubscriber = new Mock(Subscriber.class);
-Publisher publisher = new Publisher();
-publisher.add( (Subscriber)mockSubscriber.proxy() );
 
-final Object message = new Object();</pre>
-    </div>
-  
-    <p>Next we define <i>expectations</i> on the mock Subscriber that 
-    specify the methods that we expect to be called upon it during the 
-    test run.  We expect the receive method to be called with a single 
-    argument, the message that will be sent.  The <code>same</code>
-    method is defined in the MockObjectTestCase class and specifies
-    that we expect the argument to be the same object as 
-    <var>message</var>.
-    We don't need to specify what will be returned from the receive method
-    because it has a void return type.</p>
-   
-    <div class="Source Java">
-		<pre>mockSubscriber.expect(once()).method("receive").with( same(message) );</pre>
-    </div>
-  
-    <p>We then <i>execute</i> the code that we want to test.</p>
-   
-    <div class="Source Java">
-      <pre>publisher.publish(message);</pre>
-    </div>
-  
-    <p>Finally we <i>verify</i> that the mock Subscriber was called as 
-    expected.  If we do not verify, our test will detect incorrect calls 
-    to the mock Subscriber but not the complete lack of calls.</p>
-   
-    <div class="Source Java">
-      <pre>mockSubscriber.verify();</pre>
-    </div>
-  
-    <p>Here is the complete test.</p>
-    
-    <div class="Source Java">
-<pre>import org.jmock.*;
+    <i>// session bean lifecycle methods omitted...</i>
+}</pre></div>
+    <p><b>Note:</b> Package names have been removed for brevity.</p>
 
-class PublisherTest extends MockObjectTestCase {
-    public void testOneSubscriberReceivesAMessage() {
-        // set up
-        Mock mockSubscriber = new Mock(Subscriber.class);
-        Publisher publisher = new Publisher();
-        publisher.add((Subscriber) mockSubscriber.proxy());
-        
-        final Object message = new Object();
-        
-        // expectations
-        mockSubscriber.expect(once()).method("receive").with( same(message) );
-        
-        // execute
-        publisher.publish(message);
-        
-        // verify
-        mockSubscriber.verify();
+    <h1>The unit test</h1>
+
+    <p>We want our test to do the following:
+    <ol>
+        <li>Get a JNDI context.</li>
+        <li>Look up the home interface.</li>
+        <li>Cast it to a <tt>GreetingServiceHome</tt> using the standard RMI
+            object narrowing mechanism.</li>
+        <li>Get a remote stub.</li>
+        <li>Call a method on the remote stub.</li>
+        <li>Return it to the pool.</li>
+        <li>Make sure it all worked.</li>
+    </ol></p>
+
+    <p>Wrapped up in a JUnit test case, the code looks like this:</p>
+    <div class="Source Java"><pre>
+public class <tt>GreetingServiceTest</tt> extends TestCase {
+
+    public void <b>testShouldSayHello</b>() throws Exception {
+        <i>// execute</i>
+        Context context = <b>new InitialContext</b>();                 <i>// 1</i>
+        Object obj = <b>context.lookup</b>("ejb/greetingService");     <i>// 2</i>
+        GreetingServiceHome home =
+            (GreetingServiceHome)<b>PortableRemoteObject.narrow</b>(   <i>// 3</i>
+                obj, GreetingServiceHome.class);
+        GreetingService service = <b>home.create()</b>;                <i>// 4</i>
+        String result = <b>service.greet()</b>;                        <i>// 5</i>
+        <b>service.remove()</b>;                                       <i>// 6</i>
+
+        <i>// verify</i>
+        <b>assertEquals</b>("hello", result);                          <i>// 7</i>
     }
-}</pre>
+}</pre></div>
+
+    <p>If we just run this test as is, it will fail. Probably with an error
+    with the default naming context (<tt>com.sun.enterprise.<i>something</i></tt> blaming
+    <tt>org.omg.CORBA.<i>something</i></tt> for not finding a bunch of config files).</p>
+
+    <h1 id="programmatic">Getting it working - the programmatic way</h1>
+
+    <p>So what is the simplest way we can get this test to pass? Firstly we need to associate the home and remote interfaces with a bean instance, and give it a name:</p>
+    <div class="Source Java"><pre>
+EJBHome home = <b>new XjbHomeFactory().createHome</b>(
+    "greetingService",                <i>// the EJB name</i>
+    GreetingServiceHome.class,        <i>// the home interface</i>
+    GreetingService.class,            <i>// the remote interface</i>
+    new GreetingServiceBean());       <i>// the bean instance</i>
+    </pre></div>
+
+    <p>This single method call creates a fully-functional implementation of
+    <tt>GreetingServiceHome</tt>, with all the associated plumbing and metadata. Now
+    we need to register it in our JNDI context:</p>
+
+    <div class="Source Java">
+    <pre><b>new XjbInitialContextFactory().register</b>("ejb/greetingService", home);</pre>
     </div>
-    
-    <p>That concludes this quick introduction.  More advanced topics are
-    covered in <a href="docs.html#tutorials">other tutorials</a>.</p>
+
+    <p>The <tt>XjbInitialContextFactory</tt> constructor registered XJB as the default
+    JNDI implementation, so there is nothing more to do. Our setup method now looks like
+    this:</p>
+    <div class="Source Java"><pre>
+public void <b>setUp</b>() throws Exception {
+    EJBHome home = <b>new XjbHomeFactory().createHome</b>(
+            "greetingService",
+            GreetingServiceHome.class,
+            GreetingService.class,
+            new GreetingServiceBean());
+
+    <b>new XjbInitialContextFactory().register</b>("ejb/greetingService", home);
+}</pre></div>
+    <p>And that's it. Two lines of setup code and we can test our EJB outside of the
+    container.</p>
+
+    <h1 id="ejbjar">Getting it working - the lazy way</h1>
+
+    <p>Although that was pretty straightforward, there is an even easier way.
+    Assuming you have an <tt>ejb-jar.xml</tt>, you can set up XJB by simply
+    passing a <tt>java.io.Reader</tt> into a configurator:</p>
+    <div class="Java Source"><pre>
+public void setUp() throws Exception {
+    <b>new XppEjbJarConfigurator().read</b>(new FileReader("/path/to/ejb-jar.xml"));
+}</pre></div>
+    <p>And that's it!</p>
+    <p>This is actually a nicer way to do things because you get all your
+    <tt>&lt;ejb-link&gt;</tt>, <tt>&lt;env-ref&gt;</tt> and
+    <tt>&lt;resource-ref&gt;</tt> setup for free.</p>
+
+    <h1>Summary</h1>
+
+    <p>To recap:
+    <ul>
+        <li>XJB takes up as few lines as it possiby can in your test setup.</li>
+        <li>The configurator can read your <tt>ejb-jar.xml</tt> file(s) and "deploy"
+            your EJBs. This is very fast.</li>
+    </ul>
+    </p>
+
+    <h1>Where next?</h1>
+
+    <p>If you want to do end-to-end integration testing with XJB (guess what? it's easy)
+    you should take a look at configuring <a href="datasources.html">JDBC DataSources</a>,
+    and maybe read about how you can use <a href="nullobjects.html">Null Objects</a>
+    to make testing easier.</p>
+
+    <p></p>
   </body>
 </html>
-  

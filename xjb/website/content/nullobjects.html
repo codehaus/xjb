@@ -1,0 +1,32 @@
+<html>
+<head><title>Null Objects</title></head>
+<body>
+    <h1>Null Objects</h1>
+    <p>A null object is a regular object that behaves in a deterministically boring
+    way. For instance the <tt>EMPTY_MAP</tt>, <tt>EMPTY_LIST</tt> and <tt>EMPTY_SET</tt>
+    in <tt>java.util.Collections</tt> are null object implementations of the various
+    collection interfaces.</p>
+
+    <p>The point of a null object is that you can pass it around, use it, dereference
+    it etc. just like you would a regular object. If you use them pervasively, they
+    remove the need to ever check for <tt>null</tt> in your code.</p>
+
+    <p>XJB uses null objects liberally for things like the container-managed
+    <tt>Transaction</tt> and <tt>TransactionPolicyHandler</tt>. The typical pattern
+    is to have an immutable field in the interface definition called <tt>NULL</tt>.</p>
+
+    <p>We are using the null object implementation from
+    <a href="http://proxytoys.codehaus.org">ProxyToys</a>, so the usage looks like:</p>
+    <div class="Java Source"><pre>
+public interface Transaction {
+    Transaction <b>NULL</b> = (Transaction)<b>Null.object</b>(Transaction.class);
+}
+    </pre></div>
+
+    <p>You'll see these scattered all over the code base - they are a very useful habit
+    to get into.</p>
+
+    <p>TODO - talk about Null DataSource and registering DataSources with
+    <tt>xjb-config.xml</tt></p>
+</body>
+</html>

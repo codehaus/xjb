@@ -2,14 +2,14 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="lib" path="lib/EXML.jar"/>
 	<classpathentry kind="lib" path="lib/j2ee.jar"/>
-	<classpathentry kind="lib" path="lib/log4j.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.3.1_08"/>
 	<classpathentry kind="lib" path="lib/test/hsqldbmain.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.3.4d_b4_min.jar"/>
 	<classpathentry kind="lib" path="lib/test/jmock.jar"/>
 	<classpathentry kind="lib" path="lib/proxytoys.jar"/>
 	<classpathentry kind="var" path="JUNIT_HOME/junit.jar"/>
+	<classpathentry kind="lib" path="lib/EXML.jar"/>
+	<classpathentry kind="lib" path="lib/log4j.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

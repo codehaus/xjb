@@ -23,6 +23,7 @@ import com.thoughtworks.xjb.config.ejbjar.exml.ExmlEjbJarConfigurator;
 public class EjbJarXmlTest extends TestCase {
     
     private static final String VALUE_FROM_ENVIRONMENT = "value from ENVIRONMENT";
+    
 	private Reader ejbJarXml() {
         return new StringReader((
             "<ejb-jar>\n" +
@@ -44,9 +45,8 @@ public class EjbJarXmlTest extends TestCase {
     }
     
     public void setUp() throws Exception {
-        Reader reader = ejbJarXml();
-        new ExmlEjbJarConfigurator().read(reader); // could be a FileReader
-        // or: new ExmlEjbJarConfigurator().read("file:///some-ejb.jar!/META-INF/ejb-jar.xml");
+        new ExmlEjbJarConfigurator().read(ejbJarXml()); // could use a FileReader
+        // or: new ExmlEjbJarConfigurator().read("file:///path/to/some-ejb.jar!/META-INF/ejb-jar.xml");
     }
     
 	public void testShouldCallEjbMethodFromClient() throws Exception {

@@ -10,13 +10,6 @@ CONTENT_DIR = File.join(BASE_DIR,"content")
 SKIN_DIR = File.join(BASE_DIR,"templates")
 OUTPUT_DIR = File.join(BASE_DIR,"output")
 
-# HACKTAG
-if File::SEPARATOR == '/'
-	SLASH = '/'
-else
-	SLASH = '\\\\'
-end
-
 CVSWEB_ROOT = "http://cvs.jmock.codehaus.org/viewcvs.cgi/jmock/website/content/"
 
 TEMPLATE = XEMPLATE::load_template( File.join(SKIN_DIR,"skin.html") )
@@ -37,7 +30,7 @@ def is_markup( filename )
 end
 
 def is_cvs_data( filename )
-	filename =~ %r[#{SLASH}CVS(#{SLASH}|$)]o
+	filename =~ %r{/(CVS|\.svn)(/|$)}o
 end
 
 def is_directory( filename )
@@ -103,10 +96,13 @@ def skin_content_file( content_file, root_content_dir )
     
     config = {
         "content" => content_file,
-        "isindex" => (content_file =~ %r[content#{SLASH}index\.html$]) != nil,
-        "snapshot" => String.new(env("SNAPSHOT_ID","n/a")),
-        "prerelease" => String.new(env("PRERELEASE_ID","n/a")),
-        "release" => String.new(env("RELEASE_ID","n/a")),
+        "isindex" => (content_file =~ %r[content/index\.html$]) != nil,
+        "snapshot" => env("SNAPSHOT_ID","n/a"),
+        "prerelease" => env("PRERELEASE_ID","n/a"),
+        "release" => env("RELEASE_ID","n/a"),
+#        "snapshot" => String.new(env("SNAPSHOT_ID","n/a")),
+#        "prerelease" => String.new(env("PRERELEASE_ID","n/a")),
+#        "release" => String.new(env("RELEASE_ID","n/a")),
         "history" => CVSWEB_ROOT + content_file[(root_content_dir.size+1)..-1]
     }
     

@@ -67,7 +67,7 @@ public class XjbHomeFactory implements HomeFactory {
         }
         
         private EJBObject createRemoteProxy(EJBHome ejbHome) throws CreateException, RemoteException {
-            return remoteFactory.createRemote(ejbName, remoteInterface, ejbHome, delegate, lookup, handler);
+            return remoteFactory.createRemote(ejbName, ejbHome, remoteInterface, delegate, lookup, handler);
         }
         
         private void callEjbCreate(Method method, Object[] args) throws Throwable {
