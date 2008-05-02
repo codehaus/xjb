@@ -43,6 +43,21 @@ public class CmtRemoteFactory extends XjbRemoteFactory {
             // TODO test for this?
 			return null;
 		}
+
+        public Exception decorateInvocationException(Object proxy, Method method,
+                Object[] args, Exception exception) {
+            return exception;
+        }
+
+        public Object decorateResult(Object proxy, Method method, Object[] args,
+                Object result) {
+            return result;
+        }
+
+        public Throwable decorateTargetException(Object proxy, Method method,
+                Object[] args, Throwable targetException) {
+            return targetException;
+        }
 	}
     
     private final PolicyLookup policyLookup;
