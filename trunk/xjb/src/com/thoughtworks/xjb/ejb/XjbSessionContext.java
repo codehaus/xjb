@@ -91,4 +91,16 @@ public class XjbSessionContext implements SessionContext {
 	public MessageContext getMessageContext() throws IllegalStateException {
 		throw new UnsupportedOperationException();
 	}
+
+    public Object getBusinessObject(Class arg0) throws IllegalStateException {
+        throw new UnsupportedOperationException();
+    }
+
+    public Class getInvokedBusinessInterface() throws IllegalStateException {
+        throw new UnsupportedOperationException();
+    }
+
+    public Object lookup(String arg0) {
+        throw new UnsupportedOperationException();
+    }
 }

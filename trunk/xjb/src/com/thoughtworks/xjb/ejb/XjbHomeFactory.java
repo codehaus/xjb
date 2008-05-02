@@ -22,17 +22,37 @@ import com.thoughtworks.proxy.toys.delegate.DelegationException;
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
 public class XjbHomeFactory implements HomeFactory {
+    public static class MethodFinder {
+        private Method method;
+
+        public MethodFinder(Object delegate, String methodName, Class[] parameterTypes) {
+            try {
+                System.out.println("Looking for " + methodName);
+                method = delegate.getClass().getMethod(methodName, parameterTypes);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(methodName);
+            }
+        }
+
+        public Method method() {
+            return method;
+        }
+    }
+
     /**
      * Manages all calls to the EJBHome object
      */
     private class SessionHomeInvoker extends DelegatingInvoker {
         private final String ejbName;
+
         private final Class homeInterface;
+
         private final Class remoteInterface;
+
         private final boolean stateful;
-        
-        public SessionHomeInvoker(
-                String ejbName, Class homeInterface, Class remoteInterface, Object impl, boolean stateful) {
+
+        public SessionHomeInvoker(String ejbName, Class homeInterface,
+                Class remoteInterface, Object impl, boolean stateful) {
             super(impl);
             this.ejbName = ejbName;
             this.homeInterface = homeInterface;
@@ -40,36 +60,42 @@ public class XjbHomeFactory implements HomeFactory {
             this.stateful = stateful;
         }
 
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            EJBHome ejbHome = (EJBHome)proxy;
+        public Object invoke(Object proxy, Method method, Object[] args)
+                throws Throwable {
+            EJBHome ejbHome = (EJBHome) proxy;
             if (method.getName().startsWith("create")) {
                 return createRemote(ejbHome, method, args);
-            }
-            else if ("getEJBMetaData".equals(method.getName())) {
-                return new XjbEJBMetaData(ejbHome, homeInterface, remoteInterface, stateful);
-            }
-            else if ("toString".equals(method.getName())) {
+            } else if ("getEJBMetaData".equals(method.getName())) {
+                return new XjbEJBMetaData(ejbHome, homeInterface,
+                        remoteInterface, stateful);
+            } else if ("toString".equals(method.getName())) {
                 return "Home proxy for " + delegate().toString();
-            }
-            else {
+            } else {
                 throw new UnsupportedOperationException(method.getName());
             }
         }
 
-        private EJBObject createRemote(EJBHome ejbHome, Method ejbCreateMethod, Object[] args) throws CreateException, RemoteException, Throwable {
+        private EJBObject createRemote(EJBHome ejbHome, Method ejbCreateMethod,
+                Object[] args) throws CreateException, RemoteException,
+                Throwable {
             final EJBObject remoteProxy = createRemoteProxy(ejbHome);
             callEjbCreate(ejbCreateMethod, args);
             return remoteProxy;
         }
-        
-        private EJBObject createRemoteProxy(EJBHome ejbHome) throws CreateException, RemoteException {
-            return remoteFactory.createRemote(ejbName, ejbHome, remoteInterface, delegate());
+
+        private EJBObject createRemoteProxy(EJBHome ejbHome)
+                throws CreateException, RemoteException {
+            return remoteFactory.createRemote(ejbName, ejbHome,
+                    remoteInterface, delegate());
         }
-        
-        private void callEjbCreate(Method method, Object[] args) throws Throwable {
+
+        private void callEjbCreate(Method method, Object[] args)
+                throws Throwable {
             final String ejbCreate = "ejbC" + method.getName().substring(1);
             try {
-	            super.invokeOnDelegate(getDelegateMethod(ejbCreate, method.getParameterTypes()), args);
+                Method delegateMethod = new MethodFinder(delegate(), ejbCreate,
+                        method.getParameterTypes()).method();
+                super.invokeOnDelegate(delegateMethod, args);
             } catch (DelegationException e) {
                 throw new RemoteException(e.getMessage(), e.getCause());
             }
@@ -77,23 +103,25 @@ public class XjbHomeFactory implements HomeFactory {
     }
 
     private final RemoteFactory remoteFactory;
-    
+
     public XjbHomeFactory(RemoteFactory remoteFactory) {
         this.remoteFactory = remoteFactory;
     }
-    
+
     public XjbHomeFactory() {
         this(new XjbRemoteFactory());
     }
-    
-    public EJBHome createHome(String ejbName, Class homeInterface, Class remoteInterface, Object impl) {
-        return createSessionHome(ejbName, homeInterface, remoteInterface, impl, true);
+
+    public EJBHome createHome(String ejbName, Class homeInterface,
+            Class remoteInterface, Object impl) {
+        return createSessionHome(ejbName, homeInterface, remoteInterface, impl,
+                true);
     }
 
     public EJBHome createSessionHome(String ejbName, Class homeInterface,
-			Class remoteInterface, Object impl, boolean stateless) {
-		return (EJBHome) new StandardProxyFactory().createProxy(
-				new Class[]{homeInterface}, new SessionHomeInvoker(ejbName,
-						homeInterface, remoteInterface, impl, stateless));
-	}
+            Class remoteInterface, Object impl, boolean stateless) {
+        return (EJBHome) new StandardProxyFactory().createProxy(
+                new Class[] { homeInterface }, new SessionHomeInvoker(ejbName,
+                        homeInterface, remoteInterface, impl, stateless));
+    }
 }

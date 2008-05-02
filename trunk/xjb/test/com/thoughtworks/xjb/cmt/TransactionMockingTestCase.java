@@ -13,7 +13,7 @@ import org.jmock.MockObjectTestCase;
 /**
  * @author <a href="mailto:dan.north@thoughtworks.com">Dan North</a>
  */
-public class TransactionMockingTestCase extends MockObjectTestCase {
+public abstract class TransactionMockingTestCase extends MockObjectTestCase {
 
 	protected static final String createTransaction = "createTransaction";
     protected static final String commitUnlessRollbackOnly = "commitUnlessRollbackOnly";

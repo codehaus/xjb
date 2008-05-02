@@ -72,7 +72,7 @@ public class TransactionalRemoteFactoryTest extends MockObjectTestCase {
     }
     
     private Method getSimpleMethod(String methodName) throws Exception {
-        return Simple.class.getMethod(methodName, null);
+        return Simple.class.getMethod(methodName, new Class[0]);
     }
     
     public void testShouldCallTransactionPolicyHandlerBeforeMethodStarts() throws Exception {

@@ -63,7 +63,7 @@ public class XjbRemoteFactory implements RemoteFactory {
                 Object result;
 	            XjbInitialContextFactory.setLocalContext(ejbName);
                 if (isEjbMethod("remove", method)) {
-                    result = invokeOnDelegate(getDelegateMethod("ejbRemove", null), args);
+                    result = invokeOnDelegate(delegate().getClass().getMethod("ejbRemove", new Class[0]), args);
                 }
                 else if (isEjbMethod("getEJBHome", method)) {
                     result = ejbHome;

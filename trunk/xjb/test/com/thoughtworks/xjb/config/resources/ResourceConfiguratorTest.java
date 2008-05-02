@@ -24,19 +24,11 @@ import com.thoughtworks.xjb.jdbc.DataSourceFactory;
  */
 public class ResourceConfiguratorTest extends MockObjectTestCase {
     private static final String createDriverManagerDataSource = "createDriverManagerDataSource";
-	private static boolean firstTestDriverClassLoaded;
-    private static boolean secondTestDriverClassLoaded;
 
     public static class FirstTestDriver {
-        static {
-            firstTestDriverClassLoaded = true;
-        }
     }
 
     public static class SecondTestDriver {
-        static {
-            secondTestDriverClassLoaded = true;
-        }
     }
 
     private Reader dataSourceXml() {
@@ -64,9 +56,6 @@ public class ResourceConfiguratorTest extends MockObjectTestCase {
     
     public void testShouldConfigureDataSources() throws Exception {
 		// setup
-        firstTestDriverClassLoaded = false;
-        secondTestDriverClassLoaded = false;
-        
     	Mock mockFactory = new Mock(DataSourceFactory.class);
     	
         mockFactory.expects(once()).method(createDriverManagerDataSource)
@@ -87,14 +76,12 @@ public class ResourceConfiguratorTest extends MockObjectTestCase {
         configurator.read(dataSourceXml());
         
         // verify
-        assertEquals(true, firstTestDriverClassLoaded);
         DataSource one = (DataSource) registry.get("jdbc/One");
-        assertNotNull("jdbc/One should not be null", one);
+        assertNotNull("jdbc/One", one);
 		assertTrue("jdbc/One should be a null object", Null.isNullObject(one));
 
-        assertEquals(true, secondTestDriverClassLoaded);
         DataSource two = (DataSource) registry.get("jdbc/Two");
-        assertNotNull("jdbc/Two should not be null", two);
+        assertNotNull("jdbc/Two", two);
 		assertTrue("jdbc/Two should be a null object", Null.isNullObject(two));
 
         mockFactory.verify();

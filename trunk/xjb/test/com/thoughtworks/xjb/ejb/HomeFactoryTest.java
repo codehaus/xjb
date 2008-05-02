@@ -110,8 +110,7 @@ public class HomeFactoryTest extends MockObjectTestCase {
         }
     }
 
-    public void testShouldThrowRemoteExceptionIfEjbCreateMethodIsNotAccessible()
-            throws Exception {
+    public void testShouldThrowExceptionIfEjbCreateMethodIsNotAccessible() {
         try {
             // setup/execute
             SimpleHome home = (SimpleHome) createHomeProxy(
@@ -122,7 +121,7 @@ public class HomeFactoryTest extends MockObjectTestCase {
             
             // verify
             fail();
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             // expected
         }
     }
